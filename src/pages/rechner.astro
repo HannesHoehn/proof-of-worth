@@ -1,0 +1,200 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+---
+
+<BaseLayout
+  title="Cost-per-Use-Rechner"
+  description="Vergleiche zwei Produkte nach Gesamtkosten pro Nutzungsjahr statt nach reinem Anschaffungspreis (Total Cost of Ownership)."
+>
+  <section class="section section--tight">
+    <div class="container">
+      <span class="eyebrow">Rechner</span>
+      <h1>Cost-per-Use / TCO-Rechner</h1>
+      <p class="lede">
+        Ein 500-€-Gerät, das 20 Jahre hält, kann günstiger sein als vier 150-€-Geräte, die
+        alle 3 Jahre kaputtgehen. Trag zwei Optionen ein und vergleiche die Kosten pro Jahr.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <div class="calc-grid">
+        <div class="card calc-col" data-col="a">
+          <h3><Icon name="scale" size={20} /> Option A — langlebig</h3>
+          <label>
+            Anschaffungspreis (€)
+            <input type="number" class="preis" value="500" min="0" step="1" />
+          </label>
+          <label>
+            Erwartete Lebensdauer (Jahre)
+            <input type="number" class="lebensdauer" value="20" min="1" step="1" />
+          </label>
+        </div>
+
+        <div class="card calc-col" data-col="b">
+          <h3><Icon name="scale" size={20} /> Option B — günstig, kurzlebig</h3>
+          <label>
+            Anschaffungspreis (€)
+            <input type="number" class="preis" value="150" min="0" step="1" />
+          </label>
+          <label>
+            Erwartete Lebensdauer (Jahre)
+            <input type="number" class="lebensdauer" value="3" min="1" step="1" />
+          </label>
+        </div>
+      </div>
+
+      <div class="card betrachtung">
+        <label>
+          Betrachtungszeitraum (Jahre)
+          <input type="number" id="zeitraum" value="20" min="1" step="1" />
+        </label>
+      </div>
+
+      <div class="result card" id="result">
+        <div class="result__row">
+          <span>Option A — Neukäufe im Zeitraum</span>
+          <strong id="rebuysA">–</strong>
+        </div>
+        <div class="result__row">
+          <span>Option A — Gesamtkosten</span>
+          <strong id="totalA">–</strong>
+        </div>
+        <div class="result__row">
+          <span>Option A — Kosten pro Jahr</span>
+          <strong id="perYearA">–</strong>
+        </div>
+        <div class="score-bar result__bar"><span id="barA"></span></div>
+
+        <div class="result__row" style="margin-top:1.2rem">
+          <span>Option B — Neukäufe im Zeitraum</span>
+          <strong id="rebuysB">–</strong>
+        </div>
+        <div class="result__row">
+          <span>Option B — Gesamtkosten</span>
+          <strong id="totalB">–</strong>
+        </div>
+        <div class="result__row">
+          <span>Option B — Kosten pro Jahr</span>
+          <strong id="perYearB">–</strong>
+        </div>
+        <div class="score-bar result__bar"><span id="barB"></span></div>
+
+        <p class="result__verdict" id="verdict"></p>
+      </div>
+
+      <p class="disclaimer">
+        Vereinfachte Rechnung ohne Zinseffekte, Inflation oder Opportunitätskosten
+        entgangener Bitcoin-Wertsteigerung. Für eine Sats-basierte Betrachtung siehe
+        <a href="/ueber-uns">Philosophie-Seite</a>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .calc-col h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+  }
+  .calc-col :global(svg) { color: var(--color-bronze); }
+  label {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--color-ink-soft);
+    margin-bottom: 1rem;
+  }
+  input {
+    display: block;
+    width: 100%;
+    margin-top: 0.4rem;
+    padding: 0.6rem 0.7rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-line);
+    font-size: 1rem;
+    font-family: var(--font-body);
+  }
+  .betrachtung { margin-bottom: 1.5rem; max-width: 320px; }
+  .result__row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0;
+    font-size: 0.96rem;
+  }
+  .result__bar { margin: 0.4rem 0 0.2rem; }
+  .result__verdict {
+    margin-top: 1.4rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--color-line);
+    font-weight: 600;
+  }
+  .disclaimer { margin-top: 1.2rem; font-size: 0.85rem; color: var(--color-ink-soft); }
+
+  @media (max-width: 700px) {
+    .calc-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  function euro(n: number) {
+    return n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+  }
+
+  function berechneOption(preis: number, lebensdauer: number, zeitraum: number) {
+    const rebuys = Math.max(1, Math.ceil(zeitraum / lebensdauer));
+    const total = rebuys * preis;
+    const perYear = total / zeitraum;
+    return { rebuys, total, perYear };
+  }
+
+  function update() {
+    const colA = document.querySelector('[data-col="a"]') as HTMLElement;
+    const colB = document.querySelector('[data-col="b"]') as HTMLElement;
+    const zeitraumInput = document.getElementById('zeitraum') as HTMLInputElement;
+
+    const preisA = parseFloat((colA.querySelector('.preis') as HTMLInputElement).value) || 0;
+    const lebensdauerA = parseFloat((colA.querySelector('.lebensdauer') as HTMLInputElement).value) || 1;
+    const preisB = parseFloat((colB.querySelector('.preis') as HTMLInputElement).value) || 0;
+    const lebensdauerB = parseFloat((colB.querySelector('.lebensdauer') as HTMLInputElement).value) || 1;
+    const zeitraum = parseFloat(zeitraumInput.value) || 1;
+
+    const a = berechneOption(preisA, lebensdauerA, zeitraum);
+    const b = berechneOption(preisB, lebensdauerB, zeitraum);
+
+    (document.getElementById('rebuysA') as HTMLElement).textContent = `${a.rebuys}×`;
+    (document.getElementById('totalA') as HTMLElement).textContent = euro(a.total);
+    (document.getElementById('perYearA') as HTMLElement).textContent = `${euro(a.perYear)} / Jahr`;
+
+    (document.getElementById('rebuysB') as HTMLElement).textContent = `${b.rebuys}×`;
+    (document.getElementById('totalB') as HTMLElement).textContent = euro(b.total);
+    (document.getElementById('perYearB') as HTMLElement).textContent = `${euro(b.perYear)} / Jahr`;
+
+    const max = Math.max(a.perYear, b.perYear, 1);
+    (document.getElementById('barA') as HTMLElement).style.width = `${(a.perYear / max) * 100}%`;
+    (document.getElementById('barB') as HTMLElement).style.width = `${(b.perYear / max) * 100}%`;
+
+    const verdict = document.getElementById('verdict') as HTMLElement;
+    if (a.perYear < b.perYear) {
+      verdict.textContent = `Option A ist über ${zeitraum} Jahre günstiger: ${euro(b.perYear - a.perYear)} weniger pro Jahr.`;
+    } else if (b.perYear < a.perYear) {
+      verdict.textContent = `Option B ist über ${zeitraum} Jahre günstiger: ${euro(a.perYear - b.perYear)} weniger pro Jahr.`;
+    } else {
+      verdict.textContent = 'Beide Optionen kosten über den Zeitraum gleich viel pro Jahr.';
+    }
+  }
+
+  document.querySelectorAll('input').forEach((el) => el.addEventListener('input', update));
+  update();
+</script>

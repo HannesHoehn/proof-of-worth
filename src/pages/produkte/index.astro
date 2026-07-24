@@ -1,0 +1,109 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { getCollection } from 'astro:content';
+import { kategorieLabels } from '../../lib/score';
+
+const alleProdukte = await getCollection('products');
+const kategorien = Object.entries(kategorieLabels);
+---
+
+<BaseLayout
+  title="Produkte"
+  description="Alle bewerteten Produkte im Proof-of-Worth-Verzeichnis, filterbar nach Kategorie und Score."
+>
+  <section class="section section--tight">
+    <div class="container">
+      <span class="eyebrow">Verzeichnis</span>
+      <h1>Alle Produkte</h1>
+      <p class="lede">
+        {alleProdukte.length} bewertete Produkte. Filtere nach Kategorie oder sortiere nach
+        Proof-of-Worth-Score – Empfehlungen ebenso wie bewusst diskussionswürdige Beispiele.
+      </p>
+
+      <div class="filters" id="filters">
+        <button class="chip is-active" data-filter="alle">Alle</button>
+        {kategorien.map(([key, label]) => (
+          <button class="chip" data-filter={key}>{label}</button>
+        ))}
+      </div>
+
+      <div class="grid grid--3" id="product-grid">
+        {alleProdukte.map((entry) => <ProductCard entry={entry} />)}
+      </div>
+
+      <p id="empty-state" class="empty-state" hidden>
+        Für diese Kategorie ist noch kein Produkt eingetragen.
+        <a href="/mitmachen">Schlag eins vor →</a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .filters {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin: 1.8rem 0 2.2rem;
+  }
+  .chip {
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-line);
+    background: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--color-ink-soft);
+  }
+  .chip.is-active,
+  .chip:hover {
+    border-color: var(--color-bronze);
+    color: var(--color-bronze-dark);
+  }
+  .empty-state {
+    text-align: center;
+    padding: 2.5rem 0;
+    color: var(--color-ink-soft);
+  }
+</style>
+
+<script>
+  const filters = document.getElementById('filters');
+  const grid = document.getElementById('product-grid');
+  const emptyState = document.getElementById('empty-state');
+  const cards = grid ? Array.from(grid.children) : [];
+
+  function applyFilter(kategorie: string) {
+    let visible = 0;
+    cards.forEach((card) => {
+      const el = card as HTMLElement;
+      const match = kategorie === 'alle' || el.dataset.kategorie === kategorie;
+      el.style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
+    if (emptyState) emptyState.hidden = visible !== 0;
+  }
+
+  // Deep-link support: /produkte?kategorie=werkzeug-outdoor
+  const params = new URLSearchParams(window.location.search);
+  const initial = params.get('kategorie') ?? 'alle';
+  if (filters) {
+    filters.querySelectorAll('.chip').forEach((btn) => {
+      const el = btn as HTMLButtonElement;
+      if (el.dataset.filter === initial) el.classList.add('is-active');
+      else el.classList.remove('is-active');
+      el.addEventListener('click', () => {
+        filters.querySelectorAll('.chip').forEach((b) => b.classList.remove('is-active'));
+        el.classList.add('is-active');
+        applyFilter(el.dataset.filter ?? 'alle');
+        const url = new URL(window.location.href);
+        if (el.dataset.filter === 'alle') url.searchParams.delete('kategorie');
+        else url.searchParams.set('kategorie', el.dataset.filter ?? '');
+        window.history.replaceState({}, '', url);
+      });
+    });
+  }
+  applyFilter(initial);
+</script>

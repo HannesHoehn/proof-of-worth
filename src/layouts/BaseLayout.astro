@@ -1,0 +1,40 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = 'Proof of Worth verknüpft niedrige Zeitpräferenz aus der Bitcoin-Ökonomie mit Buy-It-For-Life-Konsum: ein offenes, quellenbasiertes Verzeichnis wertbeständiger Produkte.',
+} = Astro.props as Props;
+
+const pageTitle = title === 'Proof of Worth' ? title : `${title} · Proof of Worth`;
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Zum Inhalt springen</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

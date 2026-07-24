@@ -1,0 +1,209 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { getCollection } from 'astro:content';
+import { gesamtScore, kategorieLabels } from '../lib/score';
+
+const alleProdukte = await getCollection('products');
+const topProdukte = [...alleProdukte]
+  .sort((a, b) => gesamtScore(b.data.scores) - gesamtScore(a.data.scores))
+  .slice(0, 6);
+
+const kategorien = Object.entries(kategorieLabels).map(([key, label]) => {
+  const icon = { 'werkzeug-outdoor': 'wrench', 'haushalt-kueche': 'home', 'tech-hardware': 'cpu', bekleidung: 'shirt' }[key];
+  const count = alleProdukte.filter((p) => p.data.kategorie === key).length;
+  return { key, label, icon, count };
+});
+
+const anzahlEmpfehlung = alleProdukte.filter((p) => p.data.einordnung === 'empfehlung').length;
+const anzahlDiskussion = alleProdukte.filter((p) => p.data.einordnung === 'diskussionswuerdig').length;
+---
+
+<BaseLayout title="Proof of Worth">
+  <section class="hero">
+    <div class="container hero__inner">
+      <span class="eyebrow">Low Time Preference × Buy It For Life</span>
+      <h1>Fiat-Geld verführt zu schnellem Konsum. <br />Wir suchen, was das nicht tut.</h1>
+      <p class="lede">
+        Proof of Worth ist ein offenes, quellenbasiertes Verzeichnis für Produkte, die
+        ihren Gegenwert über Jahrzehnte behalten – kuratiert nach transparenten Kriterien
+        statt nach Marketing-Siegeln, und community-gepflegt über GitHub.
+      </p>
+      <div class="hero__actions">
+        <a href="/produkte" class="btn btn--primary">
+          <Icon name="filter" size={16} /> Produkte durchsuchen
+        </a>
+        <a href="/score-methodik" class="btn btn--ghost">Wie wir bewerten</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <span class="eyebrow">Die Idee dahinter</span>
+      <div class="grid grid--2 idea-grid">
+        <div class="card">
+          <h3>Für Bitcoiner &amp; Ökonomie-Interessierte</h3>
+          <p>
+            Wer in einer harten Währung denkt, bewertet Ausgaben nach Opportunitätskosten:
+            Wie viele Sats kostet mich das – und was ist es in 10 Jahren noch wert? Proof of
+            Worth übersetzt dieses Denken in eine konkrete Kaufentscheidung.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Für nachhaltige &amp; qualitätsbewusste Konsumenten</h3>
+          <p>
+            Statt Greenwashing-Siegeln setzen wir auf physische Haltbarkeit, Reparierbarkeit
+            und zeitlose Nutzbarkeit – als kuratierter Filter gegen die Flut an Billigimporten.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <span class="eyebrow">Nach Lebensbereich</span>
+      <h2>Kategorien</h2>
+      <div class="grid grid--4">
+        {kategorien.map((k) => (
+          <a href={`/produkte?kategorie=${k.key}`} class="kat-card">
+            <Icon name={k.icon} size={26} />
+            <span class="kat-card__label">{k.label}</span>
+            <span class="kat-card__count">{k.count} Produkt{k.count === 1 ? '' : 'e'}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Proof-of-Worth-Score</span>
+          <h2>Höchstbewertete Produkte</h2>
+        </div>
+        <a href="/produkte" class="btn btn--ghost">Alle ansehen</a>
+      </div>
+      <div class="grid grid--3">
+        {topProdukte.map((entry) => <ProductCard entry={entry} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--dark">
+    <div class="container stats">
+      <div class="stat">
+        <span class="stat__num">{alleProdukte.length}</span>
+        <span class="stat__label">Bewertete Produkte</span>
+      </div>
+      <div class="stat">
+        <span class="stat__num">{anzahlEmpfehlung}</span>
+        <span class="stat__label">Klare Empfehlungen</span>
+      </div>
+      <div class="stat">
+        <span class="stat__num">{anzahlDiskussion}</span>
+        <span class="stat__label">Bewusst diskussionswürdig</span>
+      </div>
+      <div class="stat">
+        <span class="stat__num">4</span>
+        <span class="stat__label">Transparente Score-Kriterien</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container cta-split">
+      <div class="card cta-card">
+        <Icon name="github" size={26} />
+        <h3>Community-gepflegt über GitHub</h3>
+        <p>
+          Jedes Produkt ist eine einfache Markdown-Datei mit klaren Bewertungsfeldern.
+          Neue Produkte, Korrekturen oder Langzeitberichte kommen per Pull Request rein –
+          nachvollziehbar und versioniert.
+        </p>
+        <a href="/mitmachen" class="btn btn--primary">Mitmachen</a>
+      </div>
+      <div class="card cta-card">
+        <Icon name="calculator" size={26} />
+        <h3>Cost-per-Use statt Anschaffungspreis</h3>
+        <p>
+          Ein 500-Euro-Gerät, das 20 Jahre hält, ist günstiger als vier 150-Euro-Geräte,
+          die alle 3 Jahre kaputtgehen. Der Rechner macht das sichtbar.
+        </p>
+        <a href="/rechner" class="btn btn--ghost">Zum Rechner</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding: 5rem 0 3.5rem;
+    background:
+      radial-gradient(600px 300px at 85% -10%, rgba(181, 101, 29, 0.14), transparent);
+  }
+  .hero__inner { max-width: 780px; }
+  .hero__actions {
+    display: flex;
+    gap: 0.9rem;
+    margin-top: 1.6rem;
+    flex-wrap: wrap;
+  }
+  .idea-grid { margin-top: 1.5rem; }
+  .section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 1.8rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .kat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 1.4rem;
+    background: #fff;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: var(--color-ink);
+    box-shadow: var(--shadow-sm);
+  }
+  .kat-card:hover { border-color: var(--color-bronze); color: var(--color-ink); }
+  .kat-card :global(svg) { color: var(--color-bronze); }
+  .kat-card__label { font-weight: 700; font-family: var(--font-display); }
+  .kat-card__count { font-size: 0.85rem; color: var(--color-ink-soft); }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    text-align: center;
+  }
+  .stat__num {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    color: var(--color-bronze-light);
+    font-weight: 700;
+  }
+  .stat__label { font-size: 0.9rem; color: #cfc7b6; }
+
+  .cta-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .cta-card { display: flex; flex-direction: column; gap: 0.6rem; }
+  .cta-card :global(svg) { color: var(--color-bronze); }
+
+  @media (max-width: 900px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .cta-split { grid-template-columns: 1fr; }
+  }
+</style>

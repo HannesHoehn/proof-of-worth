@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+---
+
+<BaseLayout
+  title="Unterstützen"
+  description="Lightning-Tipping und Nostr-Anbindung für Proof of Worth – Konzept und aktueller Umsetzungsstand."
+>
+  <section class="section section--tight">
+    <div class="container">
+      <span class="eyebrow"><Icon name="bolt" size={14} /> In Vorbereitung</span>
+      <h1>Value4Value: Lightning &amp; Nostr</h1>
+      <p class="lede">
+        Langfristig soll es möglich sein, gute Produktanalysen direkt per Lightning zu
+        „zappen" und sich per Nostr statt per klassischem Login anzumelden. Diese Seite
+        beschreibt den Plan ehrlich – inklusive dem, was dafür noch fehlt.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <div class="grid grid--2">
+        <div class="card">
+          <h3><Icon name="bolt" size={20} /> Lightning-Tipping (Zaps)</h3>
+          <p>
+            Idee: Jede Produktseite bekommt einen „Zap"-Button, über den Leser:innen den
+            Autor:innen einer Analyse direkt in Sats etwas zukommen lassen können.
+          </p>
+          <p class="status status--todo">Noch nicht live – erfordert:</p>
+          <ul>
+            <li>Eine Lightning-Adresse/einen Node (z. B. via Alby, LNbits oder eigenem Node)</li>
+            <li>Eine Zuordnung von Zaps zu einzelnen Autor:innen statt nur zum Projekt</li>
+            <li>Eine bewusste Entscheidung, wer die Wallet-Infrastruktur betreibt und absichert</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3><Icon name="github" size={20} /> Nostr-Anbindung</h3>
+          <p>
+            Idee: Login und Produkteinreichungen optional über einen Nostr-Schlüssel statt
+            über klassische Accounts – dezentral und zensurresistent.
+          </p>
+          <p class="status status--todo">Noch nicht live – erfordert:</p>
+          <ul>
+            <li>Integration eines Nostr-Signing-Flows (z. B. NIP-07 Browser-Extension)</li>
+            <li>Ein Relay-Setup, auf das sich das Projekt verlassen kann</li>
+            <li>Spam-Schutz-Konzept für Produkt-Submissions (ggf. kleine Lightning-Gebühr)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card next-step">
+        <h3>Nächster sinnvoller Schritt</h3>
+        <p>
+          Bevor hier echte Zahlungen fließen, lohnt sich eine bewusste Entscheidung zu
+          Wallet-Anbieter, Haftung und Buchhaltung – das ist keine rein technische Frage.
+          Bis dahin bleibt diese Seite ein transparenter Fahrplan statt einer Fake-Funktion.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .status { font-weight: 700; font-size: 0.9rem; margin-top: 1rem; }
+  .status--todo { color: var(--color-warn); }
+  .card ul { padding-left: 1.2rem; color: var(--color-ink-soft); font-size: 0.92rem; }
+  .card li { margin-bottom: 0.35rem; }
+  .next-step { margin-top: 1.5rem; }
+</style>

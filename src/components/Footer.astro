@@ -1,0 +1,116 @@
+---
+import Icon from './Icon.astro';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container footer__grid">
+    <div>
+      <div class="brand brand--footer">
+        <Icon name="scale" size={20} />
+        <span>Proof of Worth</span>
+      </div>
+      <p class="footer__claim">
+        Low Time Preference trifft Buy It For Life. Ein offenes,
+        community-gepflegtes Verzeichnis wertbeständiger Produkte.
+      </p>
+    </div>
+
+    <div>
+      <h4>Erkunden</h4>
+      <ul class="footer__links">
+        <li><a href="/produkte">Alle Produkte</a></li>
+        <li><a href="/score-methodik">Score-Methodik</a></li>
+        <li><a href="/rechner">Cost-per-Use-Rechner</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Mitmachen</h4>
+      <ul class="footer__links">
+        <li><a href="/mitmachen">Produkt vorschlagen</a></li>
+        <li><a href="/ueber-uns">Philosophie</a></li>
+        <li><a href="/unterstuetzen">Unterstützen (Lightning/Nostr)</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Projekt</h4>
+      <ul class="footer__links">
+        <li>
+          <a href="https://github.com/" target="_blank" rel="noopener noreferrer">
+            GitHub-Repository
+          </a>
+        </li>
+        <li><a href="/impressum">Impressum &amp; Datenschutz</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container footer__bottom">
+    <span>© {year} Proof of Worth · Open Source, verwaltet über GitHub</span>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--color-ink);
+    color: var(--color-paper-dim);
+    padding: 3rem 0 1.5rem;
+  }
+  .footer__grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 2rem;
+  }
+  .brand--footer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--color-paper);
+    margin-bottom: 0.6rem;
+  }
+  .footer__claim {
+    color: #b9b2a3;
+    font-size: 0.92rem;
+    max-width: 32ch;
+  }
+  .site-footer h4 {
+    color: var(--color-paper);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.8rem;
+  }
+  .footer__links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+  .footer__links a {
+    color: #cfc7b6;
+    text-decoration: none;
+    font-size: 0.92rem;
+  }
+  .footer__links a:hover { color: var(--color-bronze-light); }
+  .footer__bottom {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 0.82rem;
+    color: #8f8878;
+  }
+  @media (max-width: 780px) {
+    .footer__grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) {
+    .footer__grid { grid-template-columns: 1fr; }
+  }
+</style>

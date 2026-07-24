@@ -1,0 +1,143 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+
+const kriterien = [
+  {
+    icon: 'wrench',
+    titel: 'Reparierbarkeit & Ersatzteile',
+    frage:
+      'Gibt es Ersatzteile, Reparaturanleitungen oder einen Herstellerservice über Jahre bzw. Jahrzehnte hinweg? Orientierung bieten u. a. iFixit-Reparierbarkeits-Scores.',
+    skala: [
+      '1 — Nicht reparierbar, kein Ersatzteilprogramm',
+      '3 — Teilweise reparierbar, eingeschränktes Ersatzteilangebot',
+      '5 — Vollständig reparierbar, langfristig verfügbare Ersatzteile',
+    ],
+  },
+  {
+    icon: 'scale',
+    titel: 'Material & Konstruktion',
+    frage:
+      'Vollmetall, Massivholz oder Gusseisen vs. Verbundstoffe und Plastik. Wie widerstandsfähig ist die Konstruktion gegen normalen Verschleiß?',
+    skala: [
+      '1 — Überwiegend Kunststoff/Verbundmaterial mit bekannten Schwachstellen',
+      '3 — Mischkonstruktion, solide aber mit Verschleißteilen',
+      '5 — Hochwertige, langlebige Materialien ohne bekannte Schwachstellen',
+    ],
+  },
+  {
+    icon: 'clock',
+    titel: 'Herstellergarantie',
+    frage:
+      'Wie lange steht der Hersteller aktiv hinter dem Produkt – über die gesetzliche Gewährleistung hinaus?',
+    skala: [
+      '1 — Keine erweiterte Garantie',
+      '3 — 2–5 Jahre Herstellergarantie',
+      '5 — 10+ Jahre oder lebenslange Garantie',
+    ],
+  },
+  {
+    icon: 'heart',
+    titel: 'Wiederverkaufswert',
+    frage:
+      'Behält das Produkt auf dem Gebrauchtmarkt einen nennenswerten Anteil seines Neupreises? Das ist ein starkes Signal für reale Werthaltigkeit.',
+    skala: [
+      '1 — Praktisch kein Wiederverkaufswert',
+      '3 — Moderater Wiederverkaufswert bei gutem Zustand',
+      '5 — Konstant hohe Nachfrage auf Gebrauchtmärkten',
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="Score-Methodik"
+  description="Wie der Proof-of-Worth-Score berechnet wird: vier transparente Kriterien, öffentlich dokumentiert und auf GitHub versioniert."
+>
+  <section class="section section--tight">
+    <div class="container">
+      <span class="eyebrow">Transparenz</span>
+      <h1>Wie der Proof-of-Worth-Score entsteht</h1>
+      <p class="lede">
+        Statt Marketingversprechen zu vertrauen, bewerten wir jedes Produkt anhand von vier
+        gleich gewichteten Kriterien. Die Bewertung inkl. Begründung und Quellen steckt direkt
+        in der Markdown-Datei des Produkts – jede Änderung ist über die Git-Historie
+        nachvollziehbar.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <div class="formula card">
+        <Icon name="calculator" size={22} />
+        <p>
+          <strong>Proof-of-Worth-Score</strong> = (Reparierbarkeit + Material + Garantie +
+          Wiederverkaufswert) ÷ 4, gerundet auf eine Nachkommastelle.
+        </p>
+      </div>
+
+      <div class="kriterien-list">
+        {kriterien.map((k) => (
+          <div class="kriterium card">
+            <div class="kriterium__head">
+              <Icon name={k.icon} size={24} />
+              <h3>{k.titel}</h3>
+            </div>
+            <p>{k.frage}</p>
+            <ul>
+              {k.skala.map((s) => <li>{s}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>Bewusst offen für Diskussion</h2>
+      <p class="lede">
+        Nicht jedes Produkt im Verzeichnis ist eine klare Empfehlung. Beispiele wie
+        Smartphones oder Akkugeräte werden bewusst als „diskussionswürdig" markiert, wenn sie
+        bei einzelnen Kriterien stark, bei anderen schwach abschneiden. Das Ziel ist
+        Nachvollziehbarkeit, nicht Verkaufsförderung – deshalb verlinken wir bei jedem
+        Kriterium die zugrunde liegenden Quellen.
+      </p>
+      <p>
+        Fehler gefunden oder anderer Meinung? <a href="/mitmachen">Öffne ein Issue oder einen Pull Request</a> –
+        die Diskussion findet öffentlich auf GitHub statt.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .formula {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 2.2rem;
+  }
+  .formula :global(svg) { color: var(--color-bronze); flex-shrink: 0; }
+  .formula p { margin: 0; }
+  .kriterien-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.4rem;
+  }
+  .kriterium__head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+  }
+  .kriterium__head :global(svg) { color: var(--color-bronze); }
+  .kriterium__head h3 { margin: 0; }
+  .kriterium ul { padding-left: 1.1rem; color: var(--color-ink-soft); font-size: 0.92rem; }
+  .kriterium li { margin-bottom: 0.3rem; }
+
+  @media (max-width: 800px) {
+    .kriterien-list { grid-template-columns: 1fr; }
+  }
+</style>

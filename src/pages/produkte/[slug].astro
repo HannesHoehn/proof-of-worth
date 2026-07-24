@@ -1,0 +1,171 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { getCollection } from 'astro:content';
+import { gesamtScore, scoreLabel, kategorieLabels, formatGarantie } from '../../lib/score';
+
+export async function getStaticPaths() {
+  const alle = await getCollection('products');
+  return alle.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props as { entry: any };
+const d = entry.data;
+const { Content } = await entry.render();
+const score = gesamtScore(d.scores);
+
+const kriterien = [
+  { key: 'reparierbarkeit', label: 'Reparierbarkeit & Ersatzteile' },
+  { key: 'material', label: 'Material & Konstruktion' },
+  { key: 'garantie', label: 'Herstellergarantie' },
+  { key: 'wiederverkaufswert', label: 'Wiederverkaufswert' },
+] as const;
+---
+
+<BaseLayout title={d.name} description={d.tagline}>
+  <section class="section section--tight">
+    <div class="container product-head">
+      <a href="/produkte" class="back-link">← Alle Produkte</a>
+      <div class="product-head__row">
+        <span class="product-icon"><Icon name={d.icon} size={36} /></span>
+        <div>
+          <span class={`badge ${d.einordnung === 'empfehlung' ? 'badge--empfehlung' : 'badge--diskussion'}`}>
+            {d.einordnung === 'empfehlung' ? 'Empfehlung' : 'Diskussionswürdig'}
+          </span>
+          <h1>{d.name}</h1>
+          <p class="lede">{d.tagline}</p>
+        </div>
+        <div class="score-box">
+          <span class="score-pill score-pill--lg">{score}</span>
+          <span class="score-box__label">{scoreLabel(score)}</span>
+        </div>
+      </div>
+      <div class="meta-row">
+        <span>{d.hersteller}</span>
+        <span>·</span>
+        <span>{kategorieLabels[d.kategorie]}</span>
+        <span>·</span>
+        <span>{formatGarantie(d.garantieJahre)}</span>
+        <span>·</span>
+        <span>ca. {d.typischerPreisEUR} € · {d.erwarteteLebensdauerJahre} Jahre erwartete Lebensdauer</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <h2>Score-Aufschlüsselung</h2>
+      <div class="criteria">
+        {kriterien.map((k) => (
+          <div class="criterion">
+            <div class="criterion__head">
+              <span>{k.label}</span>
+              <span class="criterion__val">{d.scores[k.key].wert}/5</span>
+            </div>
+            <div class="score-bar">
+              <span style={`width:${(d.scores[k.key].wert / 5) * 100}%`}></span>
+            </div>
+            <p class="criterion__note">{d.scores[k.key].begruendung}</p>
+          </div>
+        ))}
+      </div>
+      <p class="criteria-footnote">
+        Details zur Methodik: <a href="/score-methodik">Score-Methodik ansehen</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container article">
+      <Content />
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <h2>Quellen</h2>
+      <ul class="sources">
+        {d.quellen.map((q: any) => (
+          <li>
+            <a href={q.url} target="_blank" rel="noopener noreferrer">{q.label}</a>
+          </li>
+        ))}
+      </ul>
+      {d.langzeitberichte.length > 0 && (
+        <>
+          <h3>Langzeitberichte aus der Community</h3>
+          <ul class="reports">
+            {d.langzeitberichte.map((r: any) => (
+              <li><strong>{r.seitJahren} Jahre im Einsatz</strong> — {r.autor}: {r.notiz}</li>
+            ))}
+          </ul>
+        </>
+      )}
+      <p class="contribute-note">
+        Nutzt du dieses Produkt schon seit Jahren? <a href="/mitmachen">Reiche einen Langzeitbericht per Pull Request ein.</a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .back-link {
+    display: inline-block;
+    margin-bottom: 1.2rem;
+    color: var(--color-ink-soft);
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+  .product-head__row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+  .product-icon { color: var(--color-bronze); flex-shrink: 0; margin-top: 0.3rem; }
+  .score-box {
+    margin-left: auto;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .score-pill--lg { width: 3.4rem; height: 3.4rem; font-size: 1.3rem; }
+  .score-box__label {
+    display: block;
+    font-size: 0.78rem;
+    margin-top: 0.4rem;
+    color: var(--color-ink-soft);
+    font-weight: 600;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    color: var(--color-ink-soft);
+    font-size: 0.92rem;
+    margin-top: 1.2rem;
+  }
+  .criteria { display: flex; flex-direction: column; gap: 1.6rem; max-width: 760px; }
+  .criterion__head {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+  .criterion__note {
+    margin-top: 0.5rem;
+    color: var(--color-ink-soft);
+    font-size: 0.94rem;
+  }
+  .criteria-footnote { margin-top: 1.8rem; font-size: 0.9rem; }
+  .article { max-width: 760px; }
+  .article :global(h2) { margin-top: 2rem; }
+  .sources, .reports { padding-left: 1.2rem; }
+  .contribute-note { margin-top: 1.2rem; font-size: 0.94rem; color: var(--color-ink-soft); }
+
+  @media (max-width: 700px) {
+    .product-head__row { flex-wrap: wrap; }
+    .score-box { margin-left: 0; }
+  }
+</style>

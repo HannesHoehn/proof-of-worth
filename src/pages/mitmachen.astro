@@ -1,0 +1,164 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+
+const schritte = [
+  {
+    titel: 'Repository forken',
+    text: 'Erstelle über den GitHub-Button oben rechts einen eigenen Fork des Proof-of-Worth-Repositories.',
+  },
+  {
+    titel: 'Neue Produktdatei anlegen',
+    text: 'Kopiere eine bestehende Datei aus src/content/products/ als Vorlage und speichere sie unter einem sprechenden Dateinamen (z. B. victorinox-taschenmesser.md).',
+  },
+  {
+    titel: 'Felder ausfüllen',
+    text: 'Trage Name, Kategorie, die vier Score-Kriterien mit Begründung sowie mindestens eine seriöse Quelle ein. Ohne Quellenangabe wird ein Vorschlag nicht gemerged.',
+  },
+  {
+    titel: 'Pull Request öffnen',
+    text: 'Reiche deine Änderung als Pull Request ein. Ein Preview-Build zeigt automatisch, wie die neue Produktseite aussieht.',
+  },
+  {
+    titel: 'Review & Merge',
+    text: 'Nach kurzem Review (Score-Plausibilität, Quellenlage) wird der PR gemergt und ist live.',
+  },
+];
+---
+
+<BaseLayout
+  title="Mitmachen"
+  description="So fügst du über GitHub ein neues Produkt hinzu oder korrigierst eine bestehende Bewertung."
+>
+  <section class="section section--tight">
+    <div class="container">
+      <span class="eyebrow">Community</span>
+      <h1>Mitmachen über GitHub</h1>
+      <p class="lede">
+        Proof of Worth ist als offenes Projekt angelegt. Jedes Produkt ist eine einzelne
+        Markdown-Datei mit klaren Feldern – Beiträge laufen über den ganz normalen
+        GitHub-Workflow: Fork, Branch, Pull Request.
+      </p>
+      <a href="https://github.com/" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
+        <Icon name="github" size={18} /> Zum Repository
+      </a>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <h2>So läuft ein Beitrag ab</h2>
+      <ol class="steps">
+        {schritte.map((s, i) => (
+          <li class="step">
+            <span class="step__num">{i + 1}</span>
+            <div>
+              <h3>{s.titel}</h3>
+              <p>{s.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>Vorlage für eine neue Produktdatei</h2>
+      <p>
+        Diese Struktur liegt auch als <code>_TEMPLATE.md</code> im Ordner
+        <code>src/content/products/</code> bereit:
+      </p>
+      <pre class="code-block"><code>{`---
+name: "Produktname"
+hersteller: "Herstellername"
+kategorie: "werkzeug-outdoor" # oder: haushalt-kueche, tech-hardware, bekleidung
+tagline: "Ein Satz, der den BIFL-Charakter auf den Punkt bringt."
+einordnung: "empfehlung" # oder: diskussionswuerdig
+icon: "box"
+scores:
+  reparierbarkeit:
+    wert: 4
+    begruendung: "Warum diese Punktzahl? Mit Quelle belegen."
+  material:
+    wert: 4
+    begruendung: "..."
+  garantie:
+    wert: 4
+    begruendung: "..."
+  wiederverkaufswert:
+    wert: 3
+    begruendung: "..."
+garantieJahre: 5
+typischerPreisEUR: 200
+erwarteteLebensdauerJahre: 15
+quellen:
+  - label: "Herstellerseite – Garantiebedingungen"
+    url: "https://..."
+langzeitberichte: []
+veroeffentlicht: 2026-07-24
+autor: "Dein Name oder GitHub-Handle"
+---
+
+## Warum das Produkt zum Konzept passt
+
+...
+
+## Einschränkungen
+
+...
+
+## Fazit
+
+...
+`}</code></pre>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <h2>Was einen guten Beitrag ausmacht</h2>
+      <ul class="checklist">
+        <li><Icon name="check" size={18} /> Jede Score-Begründung ist mit einer nachprüfbaren, seriösen Quelle belegt (Herstellerseite, iFixit, unabhängiger Test).</li>
+        <li><Icon name="check" size={18} /> Auch Schwächen werden benannt – ein Produkt muss nicht perfekt sein, um aufgenommen zu werden.</li>
+        <li><Icon name="check" size={18} /> Langzeitberichte (5, 10, 20 Jahre Nutzung) sind besonders willkommen und erhöhen die Glaubwürdigkeit enorm.</li>
+        <li><Icon name="check" size={18} /> Korrekturen an bestehenden Bewertungen sind ausdrücklich erwünscht – auch das ist ein Pull Request.</li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .steps { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1.6rem; }
+  .step { display: flex; gap: 1rem; }
+  .step__num {
+    flex-shrink: 0;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    background: var(--color-bronze);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-family: var(--font-display);
+  }
+  .step h3 { margin-bottom: 0.3rem; font-size: 1.05rem; }
+  .step p { margin: 0; color: var(--color-ink-soft); }
+
+  .code-block {
+    background: var(--color-ink);
+    color: #e7e0d2;
+    padding: 1.4rem;
+    border-radius: var(--radius-lg);
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.55;
+  }
+  code { font-family: 'SFMono-Regular', Consolas, Menlo, monospace; }
+
+  .checklist { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.9rem; }
+  .checklist li { display: flex; align-items: flex-start; gap: 0.6rem; }
+  .checklist :global(svg) { color: var(--color-moss-dark); margin-top: 0.15rem; flex-shrink: 0; }
+</style>

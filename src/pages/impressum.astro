@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Impressum & Datenschutz" description="Impressum und Datenschutzhinweise.">
+  <section class="section section--tight">
+    <div class="container article">
+      <span class="eyebrow">Rechtliches</span>
+      <h1>Impressum &amp; Datenschutz</h1>
+
+      <div class="card notice">
+        <strong>Platzhalter — vor Veröffentlichung ausfüllen.</strong>
+        <p>
+          Nach § 5 TMG ist für geschäftsmäßige, i. d. R. auch für dauerhaft betriebene
+          private Websites ein Impressum mit ladungsfähiger Anschrift Pflicht. Ergänze hier
+          Namen, Anschrift, Kontakt (E-Mail/Telefon) der verantwortlichen Personen, bevor die
+          Seite live geht. Bei Unsicherheit lohnt sich eine kurze rechtliche Prüfung – dies
+          ist keine Rechtsberatung.
+        </p>
+      </div>
+
+      <h2>Angaben gemäß § 5 TMG</h2>
+      <p>
+        [Name, Anschrift]<br />
+        [Kontakt: E-Mail, ggf. Telefon]
+      </p>
+
+      <h2>Verantwortlich für den Inhalt</h2>
+      <p>[Name(n) der Betreiber]</p>
+
+      <h2>Datenschutz</h2>
+      <p>
+        Diese Seite ist als statische Website ohne eigenes Backend aufgebaut. Sofern
+        Formulare, Analyse-Tools oder Kommentarfunktionen ergänzt werden, muss diese
+        Datenschutzerklärung entsprechend erweitert werden (Rechtsgrundlage, Speicherdauer,
+        Empfänger, Widerrufsrecht).
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .article { max-width: 720px; }
+  .notice {
+    background: rgba(154, 74, 43, 0.08);
+    border-color: var(--color-warn);
+    margin: 1.5rem 0 2rem;
+  }
+</style>

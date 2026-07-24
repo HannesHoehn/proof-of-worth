@@ -1,0 +1,72 @@
+---
+import Icon from './Icon.astro';
+import { gesamtScore, kategorieLabels } from '../lib/score';
+
+const { entry } = Astro.props as { entry: any };
+const d = entry.data;
+const score = gesamtScore(d.scores);
+---
+
+<a href={`/produkte/${entry.slug}`} class="pcard" data-kategorie={d.kategorie} data-score={score}>
+  <div class="pcard__top">
+    <span class="pcard__icon"><Icon name={d.icon} size={28} /></span>
+    <span class={`badge ${d.einordnung === 'empfehlung' ? 'badge--empfehlung' : 'badge--diskussion'}`}>
+      {d.einordnung === 'empfehlung' ? 'Empfehlung' : 'Diskussionswürdig'}
+    </span>
+  </div>
+  <h3 class="pcard__name">{d.name}</h3>
+  <p class="pcard__tagline">{d.tagline}</p>
+  <div class="pcard__meta">
+    <span class="pcard__kategorie">{kategorieLabels[d.kategorie]}</span>
+    <span class="score-pill" title="Proof-of-Worth-Score">{score}</span>
+  </div>
+</a>
+
+<style>
+  .pcard {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    padding: 1.4rem;
+    text-decoration: none;
+    color: var(--color-ink);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.14s ease, box-shadow 0.14s ease;
+  }
+  .pcard:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    color: var(--color-ink);
+  }
+  .pcard__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.9rem;
+  }
+  .pcard__icon { color: var(--color-bronze); }
+  .pcard__name {
+    font-size: 1.15rem;
+    margin-bottom: 0.35rem;
+  }
+  .pcard__tagline {
+    color: var(--color-ink-soft);
+    font-size: 0.94rem;
+    flex-grow: 1;
+  }
+  .pcard__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--color-line);
+  }
+  .pcard__kategorie {
+    font-size: 0.82rem;
+    color: var(--color-ink-soft);
+    font-weight: 600;
+  }
+</style>
