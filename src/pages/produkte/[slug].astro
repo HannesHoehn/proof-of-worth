@@ -1,20 +1,20 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import { gesamtScore, scoreLabel, kategorieLabels, formatGarantie } from '../../lib/score';
 
 export async function getStaticPaths() {
   const alle = await getCollection('products');
   return alle.map((entry) => ({
-    params: { slug: entry.slug },
+    params: { slug: entry.id },
     props: { entry },
   }));
 }
 
 const { entry } = Astro.props as { entry: any };
 const d = entry.data;
-const { Content } = await entry.render();
+const { Content } = await render(entry);
 const score = gesamtScore(d.scores);
 
 const kriterien = [

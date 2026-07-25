@@ -7,7 +7,7 @@ const d = entry.data;
 const score = gesamtScore(d.scores);
 ---
 
-<a href={`/produkte/${entry.slug}`} class="pcard" data-kategorie={d.kategorie} data-score={score}>
+<a href={`/produkte/${entry.id}`} class="pcard" data-kategorie={d.kategorie} data-score={score}>
   <div class="pcard__top">
     <span class="pcard__icon"><Icon name={d.icon} size={28} /></span>
     <span class={`badge ${d.einordnung === 'empfehlung' ? 'badge--empfehlung' : 'badge--diskussion'}`}>

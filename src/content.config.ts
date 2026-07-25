@@ -1,7 +1,6 @@
 import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 
-// Proof of Worth Score: vier transparente Kriterien, jeweils 1-5 Punkte.
-// Siehe /score-methodik für die ausführliche Erklärung.
 const scoreCriterion = z.object({
   wert: z.number().min(1).max(5),
   begruendung: z.string(),
@@ -19,7 +18,7 @@ const langzeitbericht = z.object({
 });
 
 const products = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: ['**/*.md', '!**/_*.md'], base: './src/content/products' }),
   schema: z.object({
     name: z.string(),
     hersteller: z.string(),
@@ -30,7 +29,6 @@ const products = defineCollection({
       'bekleidung',
     ]),
     tagline: z.string(),
-    // 'empfehlung' = klarer BIFL-Fit, 'diskussionswuerdig' = bewusst kontroverses Beispiel
     einordnung: z.enum(['empfehlung', 'diskussionswuerdig']),
     icon: z.string().default('box'),
     scores: z.object({
