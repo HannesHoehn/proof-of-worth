@@ -1,8 +1,8 @@
 /* ============================================================
    Proof of Worth — Design System
    Eigenständige Farb-/Typo-Identität (kein Bitucation-Asset).
-   Palette: warmes Bronze/Kupfer (Handwerk & Bitcoin-Anklang)
-   auf dunklem Anthrazit, plus Naturton-Grün als Sekundärfarbe.
+   Palette: Bitcoin Orange (#F7931A) als Leitfarbe auf dunklem
+   Anthrazit, plus Naturton-Grün als Sekundärfarbe.
    ============================================================ */
 
 :root {
@@ -13,9 +13,9 @@
   --color-ink-soft: #34302a;
   --color-paper: #faf6ee;
   --color-paper-dim: #f1ebdd;
-  --color-bronze: #b5651d;
-  --color-bronze-dark: #8f4f16;
-  --color-bronze-light: #e0a870;
+  --color-bronze: #f7931a;       /* Bitcoin Orange */
+  --color-bronze-dark: #b35900;  /* dunkler, fuer Text/Links mit Kontrast */
+  --color-bronze-light: #ffb74d; /* heller, fuer Akzente auf dunklem Grund */
   --color-moss: #4a5940;
   --color-moss-dark: #333f2c;
   --color-line: #ddd3bf;

@@ -44,7 +44,7 @@ const anzahlDiskussion = alleProdukte.filter((p) => p.data.einordnung === 'disku
       <span class="eyebrow">Die Idee dahinter</span>
       <div class="grid grid--2 idea-grid">
         <div class="card">
-          <h3>Für Bitcoiner &amp; Ökonomie-Interessierte</h3>
+          <h3><Icon name="bitcoin" size={18} /> Für Bitcoiner &amp; Ökonomie-Interessierte</h3>
           <p>
             Wer in einer harten Währung denkt, bewertet Ausgaben nach Opportunitätskosten:
             Wie viele Sats kostet mich das – und was ist es in 10 Jahren noch wert? Proof of
@@ -141,11 +141,27 @@ const anzahlDiskussion = alleProdukte.filter((p) => p.data.einordnung === 'disku
 
 <style>
   .hero {
+    position: relative;
     padding: 5rem 0 3.5rem;
+    overflow: hidden;
     background:
-      radial-gradient(600px 300px at 85% -10%, rgba(181, 101, 29, 0.14), transparent);
+      radial-gradient(600px 300px at 85% -10%, rgba(247, 147, 26, 0.16), transparent);
   }
-  .hero__inner { max-width: 780px; }
+  .hero::before {
+    content: '₿';
+    position: absolute;
+    top: -5rem;
+    right: -1.5rem;
+    font-family: var(--font-display);
+    font-size: 24rem;
+    font-weight: 700;
+    color: var(--color-bronze);
+    opacity: 0.05;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+  .hero__inner { position: relative; z-index: 1; max-width: 780px; }
   .hero__actions {
     display: flex;
     gap: 0.9rem;
@@ -153,6 +169,8 @@ const anzahlDiskussion = alleProdukte.filter((p) => p.data.einordnung === 'disku
     flex-wrap: wrap;
   }
   .idea-grid { margin-top: 1.5rem; }
+  .idea-grid h3 { display: flex; align-items: center; gap: 0.5rem; }
+  .idea-grid h3 :global(svg) { color: var(--color-bronze); flex-shrink: 0; }
   .section-head {
     display: flex;
     align-items: flex-end;
