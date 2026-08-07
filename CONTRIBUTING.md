@@ -39,6 +39,33 @@ langzeitberichte:
     notiz: "Kurze, konkrete Beobachtung – z. B. was repariert werden musste und wie."
 ```
 
+## Lightning-Adresse hinterlegen (für Zaps)
+
+Jede Produktseite hat einen Zap-Button, über den Leser:innen die Autor:in direkt per
+Lightning unterstützen können (siehe `/unterstuetzen`). Damit das für deine Beiträge
+funktioniert:
+
+1. Öffne `src/data/contributors.ts`.
+2. Trage einen Eintrag mit deinem Autor:innen-Namen an (identisch zum `autor`-Feld in
+   deinen Produktdateien) und deiner Lightning-Adresse (Format `name@anbieter.com`, z. B.
+   von [Alby](https://getalby.com) oder [Wallet of Satoshi](https://www.walletofsatoshi.com)):
+
+```ts
+export const contributors: Record<string, Contributor> = {
+  Redaktion: { lightningAddress: undefined },
+  "dein-github-handle": {
+    lightningAddress: "dein-name@getalby.com",
+    nostr: "npub1...", // optional, nur als Profil-Link
+  },
+};
+```
+
+3. Setz in deinen Produktdateien `autor: "dein-github-handle"`, damit der Zap-Button auf
+   diesen Eintrag verweist.
+
+Ohne hinterlegte Adresse zeigt die Seite automatisch einen Hinweis statt eines kaputten
+Buttons – ein Eintrag hier ist optional, aber empfohlen.
+
 ## Qualitätskriterien für Pull Requests
 
 - Quellen sind seriös und nachprüfbar (Herstellerseite, iFixit, unabhängige Tests –

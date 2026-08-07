@@ -5,16 +5,16 @@ import Icon from '../components/Icon.astro';
 
 <BaseLayout
   title="Unterstützen"
-  description="Lightning-Tipping und Nostr-Anbindung für Proof of Worth – Konzept und aktueller Umsetzungsstand."
+  description="Lightning-Tipping für Proof of Worth: so funktioniert es, und was für vollständige Nostr-Zaps noch fehlt."
 >
   <section class="section section--tight">
     <div class="container">
-      <span class="eyebrow"><Icon name="bolt" size={14} /> In Vorbereitung</span>
-      <h1>Value4Value: Lightning &amp; Nostr</h1>
+      <span class="eyebrow"><Icon name="bolt" size={14} /> Value4Value</span>
+      <h1>Lightning &amp; Nostr</h1>
       <p class="lede">
-        Langfristig soll es möglich sein, gute Produktanalysen direkt per Lightning zu
-        „zappen" und sich per Nostr statt per klassischem Login anzumelden. Diese Seite
-        beschreibt den Plan ehrlich – inklusive dem, was dafür noch fehlt.
+        Gute Produktanalysen entstehen durch Recherchezeit. Jede Produktseite hat einen
+        Zap-Button, mit dem du die Autor:in direkt per Lightning unterstützen kannst – ohne
+        Umweg über das Projekt.
       </p>
     </div>
   </section>
@@ -23,40 +23,43 @@ import Icon from '../components/Icon.astro';
     <div class="container">
       <div class="grid grid--2">
         <div class="card">
-          <h3><Icon name="bolt" size={20} /> Lightning-Tipping (Zaps)</h3>
+          <h3><Icon name="bolt" size={20} /> Lightning-Tipping — live</h3>
           <p>
-            Idee: Jede Produktseite bekommt einen „Zap"-Button, über den Leser:innen den
-            Autor:innen einer Analyse direkt in Sats etwas zukommen lassen können.
+            Auf jeder Produktseite kannst du einen Betrag wählen und per Lightning zappen.
+            Technisch läuft das über LNURL-Pay (LUD-16) direkt an die Lightning-Adresse der
+            Autor:in: bei installierter Wallet-Extension (z. B. Alby) ein Klick über WebLN,
+            sonst per QR-Code oder Kopieren der Rechnung für eine mobile Wallet.
           </p>
-          <p class="status status--todo">Noch nicht live – erfordert:</p>
+          <p class="status status--live">Kein eigenes Backend, kein Geld auf unserer Seite:</p>
           <ul>
-            <li>Eine Lightning-Adresse/einen Node (z. B. via Alby, LNbits oder eigenem Node)</li>
-            <li>Eine Zuordnung von Zaps zu einzelnen Autor:innen statt nur zum Projekt</li>
-            <li>Eine bewusste Entscheidung, wer die Wallet-Infrastruktur betreibt und absichert</li>
+            <li>Die Website verwaltet nie Schlüssel oder Guthaben</li>
+            <li>Ein Zap geht 1:1 von deiner Wallet an die Wallet der Autor:in</li>
+            <li>Autor:innen tragen ihre eigene Lightning-Adresse in <code>src/data/contributors.ts</code> ein</li>
           </ul>
         </div>
 
         <div class="card">
-          <h3><Icon name="github" size={20} /> Nostr-Anbindung</h3>
+          <h3><Icon name="nodes" size={20} /> Volle Nostr-Zaps (NIP-57)</h3>
           <p>
-            Idee: Login und Produkteinreichungen optional über einen Nostr-Schlüssel statt
-            über klassische Accounts – dezentral und zensurresistent.
+            Bewusst noch nicht umgesetzt: ein signierter Zap-Request über eine
+            Nostr-Extension (NIP-07) und eine öffentlich prüfbare Zap-Quittung auf
+            Nostr-Relays – wie es Clients wie Damus oder Primal machen.
           </p>
-          <p class="status status--todo">Noch nicht live – erfordert:</p>
+          <p class="status status--todo">Für die volle Ausbaustufe fehlt noch:</p>
           <ul>
-            <li>Integration eines Nostr-Signing-Flows (z. B. NIP-07 Browser-Extension)</li>
-            <li>Ein Relay-Setup, auf das sich das Projekt verlassen kann</li>
-            <li>Spam-Schutz-Konzept für Produkt-Submissions (ggf. kleine Lightning-Gebühr)</li>
+            <li>Einbindung von <code>nostr-tools</code> für Event-Erstellung/-Signierung</li>
+            <li>Ein Relay-Set, auf das sich das Projekt verlässt</li>
+            <li>Anzeige der Zap-Quittungen auf der Produktseite (sozialer Beweis)</li>
           </ul>
         </div>
       </div>
 
       <div class="card next-step">
-        <h3>Nächster sinnvoller Schritt</h3>
+        <h3>Wie du deine Lightning-Adresse einträgst</h3>
         <p>
-          Bevor hier echte Zahlungen fließen, lohnt sich eine bewusste Entscheidung zu
-          Wallet-Anbieter, Haftung und Buchhaltung – das ist keine rein technische Frage.
-          Bis dahin bleibt diese Seite ein transparenter Fahrplan statt einer Fake-Funktion.
+          Trag dich in <code>src/data/contributors.ts</code> mit deinem Autor:innen-Namen
+          (identisch zum <code>autor</code>-Feld in deinen Produktdateien) und deiner
+          Lightning-Adresse ein. Details und Beispiel: <a href="/mitmachen#lightning">Mitmachen-Seite</a>.
         </p>
       </div>
     </div>
@@ -66,7 +69,9 @@ import Icon from '../components/Icon.astro';
 <style>
   .status { font-weight: 700; font-size: 0.9rem; margin-top: 1rem; }
   .status--todo { color: var(--color-warn); }
+  .status--live { color: var(--color-moss-dark); }
   .card ul { padding-left: 1.2rem; color: var(--color-ink-soft); font-size: 0.92rem; }
   .card li { margin-bottom: 0.35rem; }
+  .card code { background: var(--color-paper-dim); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.85em; }
   .next-step { margin-top: 1.5rem; }
 </style>

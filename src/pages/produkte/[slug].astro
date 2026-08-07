@@ -1,8 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
+import ZapButton from '../../components/ZapButton.astro';
 import { getCollection, render } from 'astro:content';
 import { gesamtScore, scoreLabel, kategorieLabels, formatGarantie } from '../../lib/score';
+import { getContributor } from '../../data/contributors';
 
 export async function getStaticPaths() {
   const alle = await getCollection('products');
@@ -16,6 +18,7 @@ const { entry } = Astro.props as { entry: any };
 const d = entry.data;
 const { Content } = await render(entry);
 const score = gesamtScore(d.scores);
+const contributor = getContributor(d.autor);
 
 const kriterien = [
   { key: 'reparierbarkeit', label: 'Reparierbarkeit & Ersatzteile' },
@@ -109,6 +112,17 @@ const kriterien = [
       </p>
     </div>
   </section>
+
+  <section class="section">
+    <div class="container zap-section">
+      <h2>Diesen Beitrag unterstützen</h2>
+      <p class="lede">
+        Gute Produktanalysen entstehen durch Recherchezeit. Ein Zap geht direkt und ohne
+        Umweg an die Person, die diesen Beitrag geschrieben hat.
+      </p>
+      <ZapButton lightningAddress={contributor.lightningAddress} autor={d.autor} />
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
@@ -163,6 +177,8 @@ const kriterien = [
   .article :global(h2) { margin-top: 2rem; }
   .sources, .reports { padding-left: 1.2rem; }
   .contribute-note { margin-top: 1.2rem; font-size: 0.94rem; color: var(--color-ink-soft); }
+  .zap-section { max-width: 620px; }
+  .zap-section .lede { margin-bottom: 1.2rem; }
 
   @media (max-width: 700px) {
     .product-head__row { flex-wrap: wrap; }

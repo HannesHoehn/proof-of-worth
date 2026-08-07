@@ -126,6 +126,30 @@ autor: "Dein Name oder GitHub-Handle"
       </ul>
     </div>
   </section>
+
+  <section id="lightning" class="section">
+    <div class="container">
+      <h2><Icon name="bolt" size={22} /> Lightning-Adresse hinterlegen</h2>
+      <p class="lede">
+        Jede Produktseite hat einen Zap-Button, mit dem Leser:innen dich direkt per
+        Lightning unterstützen können. Trag dazu einen Eintrag in
+        <code>src/data/contributors.ts</code> an:
+      </p>
+      <pre class="code-block"><code>{`export const contributors: Record<string, Contributor> = {
+  Redaktion: { lightningAddress: undefined },
+  "dein-github-handle": {
+    lightningAddress: "dein-name@getalby.com",
+    nostr: "npub1...", // optional, nur als Profil-Link
+  },
+};`}</code></pre>
+      <p>
+        Setz anschließend in deinen Produktdateien <code>autor: "dein-github-handle"</code> –
+        der Zap-Button auf der jeweiligen Produktseite verweist dann automatisch auf deine
+        Adresse. Ohne Eintrag zeigt die Seite einen Hinweis statt eines kaputten Buttons.
+        Details: <a href="/unterstuetzen">Unterstützen-Seite</a>.
+      </p>
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
@@ -161,4 +185,7 @@ autor: "Dein Name oder GitHub-Handle"
   .checklist { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.9rem; }
   .checklist li { display: flex; align-items: flex-start; gap: 0.6rem; }
   .checklist :global(svg) { color: var(--color-moss-dark); margin-top: 0.15rem; flex-shrink: 0; }
+  #lightning h2 { display: flex; align-items: center; gap: 0.55rem; }
+  #lightning h2 :global(svg) { color: var(--color-bronze); }
+  #lightning .lede { margin-bottom: 1.2rem; }
 </style>

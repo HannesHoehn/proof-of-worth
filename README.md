@@ -54,17 +54,28 @@ src/
   components/             # Header, Footer, ProductCard, Icon (eigene SVGs)
   layouts/BaseLayout.astro
   lib/score.ts             # Score-Berechnung & Labels
+  data/contributors.ts     # Autor:in -> Lightning-Adresse (für Zaps)
   pages/
     index.astro
     produkte/index.astro   # Liste + Filter
-    produkte/[slug].astro  # Detailseite je Produkt
+    produkte/[slug].astro  # Detailseite je Produkt, inkl. Zap-Button
     score-methodik.astro
     rechner.astro           # Cost-per-Use/TCO-Rechner
     ueber-uns.astro
     mitmachen.astro
-    unterstuetzen.astro     # Lightning/Nostr – Fahrplan, noch nicht live
+    unterstuetzen.astro     # Lightning: live. Volle Nostr-Zaps (NIP-57): Fahrplan
     impressum.astro         # Platzhalter, vor Go-Live ausfüllen!
 ```
+
+## Lightning-Tipping (Value4Value)
+
+Jede Produktseite hat einen Zap-Button (`src/components/ZapButton.astro`): LNURL-Pay
+(LUD-16) + WebLN, komplett clientseitig, ohne eigenes Backend. Zahlungen gehen direkt von
+der Wallet der zappenden Person an die in `src/data/contributors.ts` hinterlegte
+Lightning-Adresse der Autor:in – das Projekt selbst verwaltet nie Schlüssel oder Guthaben.
+
+Volle Nostr-Zaps (NIP-57, signierter Zap-Request + Zap-Quittung auf Relays) sind bewusst
+noch nicht umgesetzt, siehe `/unterstuetzen` für den Stand.
 
 ## Mitmachen
 

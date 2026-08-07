@@ -1,0 +1,315 @@
+---
+// Lightning-Tipping-Button (Value4Value) auf Basis von LNURL-Pay (LUD-06/16)
+// und WebLN. Läuft komplett clientseitig, ohne eigenes Backend: Die Website
+// verwaltet nie Geld oder private Schlüssel, sie fragt nur bei der
+// öffentlichen Lightning-Adresse der/des Autor:in eine Rechnung (Invoice)
+// an, die die zappende Person mit ihrer eigenen Wallet bezahlt.
+//
+// Volle NIP-57-Nostr-Zaps (signierter Zap-Request + Zap-Quittung auf
+// Relays) sind bewusst noch nicht umgesetzt - siehe /unterstuetzen.
+import Icon from './Icon.astro';
+
+interface Props {
+  lightningAddress?: string;
+  autor: string;
+}
+
+const { lightningAddress, autor } = Astro.props as Props;
+const hasAddress = Boolean(lightningAddress && lightningAddress.includes('@'));
+---
+
+<div class="zap" data-ln={lightningAddress ?? ''}>
+  {hasAddress ? (
+    <>
+      <div class="zap__head">
+        <Icon name="bolt" size={18} />
+        <span>{autor} per Lightning unterstützen</span>
+      </div>
+
+      <div class="zap__amounts" role="group" aria-label="Betrag in Sats wählen">
+        <button type="button" class="zap__amount is-active" data-sats="21">21</button>
+        <button type="button" class="zap__amount" data-sats="210">210</button>
+        <button type="button" class="zap__amount" data-sats="2100">2.100</button>
+        <input
+          type="number"
+          class="zap__custom"
+          placeholder="eigener Betrag"
+          min="1"
+          step="1"
+          aria-label="Eigener Betrag in Sats"
+        />
+      </div>
+
+      <button type="button" class="btn btn--primary zap__send">
+        <Icon name="bolt" size={16} /> Zap senden
+      </button>
+
+      <div class="zap__status" role="status" aria-live="polite"></div>
+      <div class="zap__result" hidden></div>
+
+      <p class="zap__fallback">
+        Oder direkt in deiner Wallet an <code class="zap__addr">{lightningAddress}</code> senden.
+        <button type="button" class="zap__copy" data-copy={lightningAddress}>Kopieren</button>
+      </p>
+    </>
+  ) : (
+    <p class="zap__missing">
+      <Icon name="bolt" size={16} />
+      {autor} hat noch keine Lightning-Adresse hinterlegt.
+      <a href="/mitmachen#lightning">Wie füge ich eine hinzu?</a>
+    </p>
+  )}
+</div>
+
+<style>
+  .zap {
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    padding: 1.4rem;
+    background: #fff;
+  }
+  .zap__head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  .zap__head :global(svg) { color: var(--color-bronze); }
+  .zap__amounts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .zap__amount {
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-line);
+    background: var(--color-paper-dim);
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.92rem;
+  }
+  .zap__amount.is-active {
+    border-color: var(--color-bronze);
+    background: var(--color-bronze);
+    color: #fff;
+  }
+  .zap__custom {
+    width: 9rem;
+    padding: 0.5rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-line);
+    font-size: 0.92rem;
+  }
+  .zap__status {
+    margin-top: 0.9rem;
+    font-size: 0.9rem;
+    color: var(--color-ink-soft);
+    min-height: 1.2em;
+  }
+  .zap__result {
+    margin-top: 0.9rem;
+    padding: 1rem;
+    border: 1px dashed var(--color-line);
+    border-radius: var(--radius);
+    text-align: center;
+  }
+  .zap__result img {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 0.8rem;
+    display: block;
+    border-radius: var(--radius);
+  }
+  .zap__result .zap__invoice {
+    font-family: 'SFMono-Regular', Consolas, Menlo, monospace;
+    font-size: 0.75rem;
+    word-break: break-all;
+    color: var(--color-ink-soft);
+    display: block;
+    margin-bottom: 0.7rem;
+  }
+  .zap__fallback {
+    margin: 1rem 0 0;
+    font-size: 0.85rem;
+    color: var(--color-ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .zap__addr {
+    background: var(--color-paper-dim);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+  }
+  .zap__copy {
+    border: 1px solid var(--color-line);
+    background: #fff;
+    border-radius: 999px;
+    padding: 0.2rem 0.7rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+  .zap__missing {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    color: var(--color-ink-soft);
+    font-size: 0.92rem;
+    margin: 0;
+  }
+  .zap__missing :global(svg) { color: var(--color-bronze); flex-shrink: 0; }
+</style>
+
+<script>
+  import QRCode from 'qrcode';
+
+  function parseLightningAddress(address: string): { name: string; domain: string } | null {
+    const parts = address.split('@');
+    if (parts.length !== 2) return null;
+    return { name: parts[0], domain: parts[1] };
+  }
+
+  async function resolveInvoice(address: string, sats: number): Promise<string> {
+    const parsed = parseLightningAddress(address);
+    if (!parsed) throw new Error('Ungültige Lightning-Adresse.');
+
+    const lnurlpUrl = `https://${parsed.domain}/.well-known/lnurlp/${parsed.name}`;
+    const metaRes = await fetch(lnurlpUrl);
+    if (!metaRes.ok) throw new Error('Lightning-Adresse konnte nicht aufgelöst werden.');
+    const meta = await metaRes.json();
+    if (meta.status === 'ERROR') throw new Error(meta.reason ?? 'LNURL-Fehler.');
+
+    const msats = sats * 1000;
+    if (meta.minSendable && msats < meta.minSendable) {
+      throw new Error(`Mindestbetrag: ${Math.ceil(meta.minSendable / 1000)} Sats.`);
+    }
+    if (meta.maxSendable && msats > meta.maxSendable) {
+      throw new Error(`Höchstbetrag: ${Math.floor(meta.maxSendable / 1000)} Sats.`);
+    }
+
+    const sep = meta.callback.includes('?') ? '&' : '?';
+    const invoiceRes = await fetch(`${meta.callback}${sep}amount=${msats}`);
+    if (!invoiceRes.ok) throw new Error('Rechnung konnte nicht erstellt werden.');
+    const invoiceData = await invoiceRes.json();
+    if (!invoiceData.pr) throw new Error(invoiceData.reason ?? 'Keine Rechnung erhalten.');
+    return invoiceData.pr as string;
+  }
+
+  declare global {
+    interface Window {
+      webln?: {
+        enable: () => Promise<void>;
+        sendPayment: (invoice: string) => Promise<unknown>;
+      };
+    }
+  }
+
+  document.querySelectorAll<HTMLElement>('.zap').forEach((zap) => {
+    const address = zap.dataset.ln;
+    if (!address) return;
+
+    const amountButtons = zap.querySelectorAll<HTMLButtonElement>('.zap__amount');
+    const customInput = zap.querySelector<HTMLInputElement>('.zap__custom');
+    const sendButton = zap.querySelector<HTMLButtonElement>('.zap__send');
+    const statusEl = zap.querySelector<HTMLElement>('.zap__status');
+    const resultEl = zap.querySelector<HTMLElement>('.zap__result');
+    const copyButtons = zap.querySelectorAll<HTMLButtonElement>('.zap__copy');
+
+    let selectedSats = 21;
+
+    amountButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        amountButtons.forEach((b) => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        selectedSats = Number(btn.dataset.sats ?? 21);
+        if (customInput) customInput.value = '';
+      });
+    });
+
+    customInput?.addEventListener('input', () => {
+      const val = Number(customInput.value);
+      if (val > 0) {
+        selectedSats = val;
+        amountButtons.forEach((b) => b.classList.remove('is-active'));
+      }
+    });
+
+    copyButtons.forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const text = btn.dataset.copy ?? '';
+        try {
+          await navigator.clipboard.writeText(text);
+          const original = btn.textContent;
+          btn.textContent = 'Kopiert ✓';
+          setTimeout(() => { btn.textContent = original; }, 1800);
+        } catch {
+          // Clipboard-API nicht verfügbar - stiller Fallback, Text bleibt sichtbar.
+        }
+      });
+    });
+
+    sendButton?.addEventListener('click', async () => {
+      if (!statusEl || !resultEl) return;
+      resultEl.hidden = true;
+      resultEl.innerHTML = '';
+      statusEl.textContent = 'Rechnung wird angefragt …';
+      sendButton.setAttribute('disabled', 'true');
+
+      try {
+        const invoice = await resolveInvoice(address, selectedSats);
+
+        if (window.webln) {
+          try {
+            await window.webln.enable();
+            statusEl.textContent = 'Öffne Wallet-Extension …';
+            await window.webln.sendPayment(invoice);
+            statusEl.textContent = `⚡ Zap über ${selectedSats} Sats gesendet. Danke!`;
+            sendButton.removeAttribute('disabled');
+            return;
+          } catch {
+            // Nutzer:in hat WebLN abgebrochen oder es gab einen Fehler -
+            // fällt unten auf QR-Code/Invoice-Anzeige zurück.
+          }
+        }
+
+        statusEl.textContent = 'Mit Wallet-App scannen oder öffnen:';
+        const qrDataUrl = await QRCode.toDataURL(`lightning:${invoice}`, { margin: 1, width: 240 });
+        resultEl.innerHTML = `
+          <img src="${qrDataUrl}" alt="QR-Code der Lightning-Rechnung" />
+          <code class="zap__invoice">${invoice}</code>
+        `;
+        const openLink = document.createElement('a');
+        openLink.href = `lightning:${invoice}`;
+        openLink.className = 'btn btn--ghost';
+        openLink.textContent = 'In Wallet öffnen';
+        resultEl.appendChild(openLink);
+
+        const copyInvoiceBtn = document.createElement('button');
+        copyInvoiceBtn.type = 'button';
+        copyInvoiceBtn.className = 'zap__copy';
+        copyInvoiceBtn.style.marginLeft = '0.5rem';
+        copyInvoiceBtn.textContent = 'Rechnung kopieren';
+        copyInvoiceBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(invoice);
+            copyInvoiceBtn.textContent = 'Kopiert ✓';
+            setTimeout(() => { copyInvoiceBtn.textContent = 'Rechnung kopieren'; }, 1800);
+          } catch {
+            // stiller Fallback
+          }
+        });
+        resultEl.appendChild(copyInvoiceBtn);
+        resultEl.hidden = false;
+      } catch (err) {
+        statusEl.textContent = `Fehler: ${err instanceof Error ? err.message : 'Unbekannter Fehler.'} Du kannst stattdessen die Lightning-Adresse unten manuell in deiner Wallet nutzen.`;
+      } finally {
+        sendButton.removeAttribute('disabled');
+      }
+    });
+  });
+</script>
