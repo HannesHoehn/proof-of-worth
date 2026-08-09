@@ -1,0 +1,78 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+---
+
+<BaseLayout
+  title="Support"
+  description="Lightning tipping for Proof of Worth: how it works, and what's still missing for full Nostr zaps."
+>
+  <section class="section section--tight">
+    <div class="container">
+      <span class="eyebrow"><Icon name="bolt" size={14} /> Value4Value</span>
+      <h1>Lightning &amp; Nostr</h1>
+      <p class="lede">
+        Good product analysis takes research time. Every product page has a Zap button
+        that lets you support the author directly via Lightning – no detour through the
+        project.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <div class="grid grid--2">
+        <div class="card">
+          <h3><Icon name="bolt" size={20} /> Lightning tipping — live</h3>
+          <p>
+            On every product page you can choose an amount and zap it via Lightning.
+            Technically this runs over LNURL-Pay (LUD-16) directly to the author's
+            Lightning address: one click via WebLN if you have a wallet extension
+            installed (e.g. Alby), or a QR code / copyable invoice for a mobile wallet
+            otherwise.
+          </p>
+          <p class="status status--live">No backend of our own, no money on our side:</p>
+          <ul>
+            <li>The website never holds keys or funds</li>
+            <li>A zap goes 1:1 from your wallet to the author's wallet</li>
+            <li>Authors add their own Lightning address in <code>src/data/contributors.ts</code></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3><Icon name="nodes" size={20} /> Full Nostr zaps (NIP-57)</h3>
+          <p>
+            Deliberately not yet implemented: a signed zap request via a Nostr extension
+            (NIP-07) and a publicly verifiable zap receipt on Nostr relays – the way
+            clients like Damus or Primal do it.
+          </p>
+          <p class="status status--todo">Still missing for the full version:</p>
+          <ul>
+            <li>Integrating <code>nostr-tools</code> for event creation/signing</li>
+            <li>A relay set the project relies on</li>
+            <li>Displaying zap receipts on the product page (social proof)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card next-step">
+        <h3>How to add your Lightning address</h3>
+        <p>
+          Add yourself to <code>src/data/contributors.ts</code> with your author name
+          (matching the <code>autor</code> field in your product files) and your
+          Lightning address. Details and an example: <a href="/en/mitmachen#lightning">Contribute page</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .status { font-weight: 700; font-size: 0.9rem; margin-top: 1rem; }
+  .status--todo { color: var(--color-warn); }
+  .status--live { color: var(--color-moss-dark); }
+  .card ul { padding-left: 1.2rem; color: var(--color-ink-soft); font-size: 0.92rem; }
+  .card li { margin-bottom: 0.35rem; }
+  .card code { background: var(--color-paper-dim); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.85em; }
+  .next-step { margin-top: 1.5rem; }
+</style>

@@ -21,6 +21,7 @@ scores:
 garantieJahre: 25
 typischerPreisEUR: 130
 erwarteteLebensdauerJahre: 25
+kaufLink: "https://www.leatherman.com/products/wave"
 quellen:
   - label: "Leatherman – Warranty"
     url: "https://www.leatherman.com/pages/customerservice-warranty"

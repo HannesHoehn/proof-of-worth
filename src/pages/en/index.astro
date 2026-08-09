@@ -1,10 +1,10 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Icon from '../components/Icon.astro';
-import ProductCard from '../components/ProductCard.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import ProductCard from '../../components/ProductCard.astro';
 import { getCollection } from 'astro:content';
-import { gesamtScore, kategorieLabel } from '../lib/score';
-import { getLangFromUrl, localeOfEntryId } from '../i18n/utils';
+import { gesamtScore, kategorieLabel } from '../../lib/score';
+import { getLangFromUrl, localeOfEntryId } from '../../i18n/utils';
 
 const lang = getLangFromUrl(Astro.url);
 const alle = await getCollection('products');
@@ -32,38 +32,38 @@ const anzahlDiskussion = alleProdukte.filter((p) => p.data.einordnung === 'disku
   <section class="hero">
     <div class="container hero__inner">
       <span class="eyebrow">Low Time Preference × Buy It For Life</span>
-      <h1>Fiat-Geld verführt zu schnellem Konsum. <br />Wir suchen, was das nicht tut.</h1>
+      <h1>Fiat money tempts you into quick consumption. <br />We look for what doesn't.</h1>
       <p class="lede">
-        Proof of Worth ist ein offenes, quellenbasiertes Verzeichnis für Produkte, die
-        ihren Gegenwert über Jahrzehnte behalten – kuratiert nach transparenten Kriterien
-        statt nach Marketing-Siegeln, und community-gepflegt über GitHub.
+        Proof of Worth is an open, source-based directory of products that hold their value
+        for decades – curated by transparent criteria instead of marketing seals, and
+        maintained by the community on GitHub.
       </p>
       <div class="hero__actions">
-        <a href="/produkte" class="btn btn--primary">
-          <Icon name="filter" size={16} /> Produkte durchsuchen
+        <a href="/en/produkte" class="btn btn--primary">
+          <Icon name="filter" size={16} /> Browse products
         </a>
-        <a href="/score-methodik" class="btn btn--ghost">Wie wir bewerten</a>
+        <a href="/en/score-methodik" class="btn btn--ghost">How we score</a>
       </div>
     </div>
   </section>
 
   <section class="section section--alt">
     <div class="container">
-      <span class="eyebrow">Die Idee dahinter</span>
+      <span class="eyebrow">The idea behind it</span>
       <div class="grid grid--2 idea-grid">
         <div class="card">
-          <h3><Icon name="bitcoin" size={18} /> Für Bitcoiner &amp; Ökonomie-Interessierte</h3>
+          <h3><Icon name="bitcoin" size={18} /> For Bitcoiners &amp; economics-minded readers</h3>
           <p>
-            Wer in einer harten Währung denkt, bewertet Ausgaben nach Opportunitätskosten:
-            Wie viele Sats kostet mich das – und was ist es in 10 Jahren noch wert? Proof of
-            Worth übersetzt dieses Denken in eine konkrete Kaufentscheidung.
+            Anyone who thinks in a hard currency weighs spending by opportunity cost: how
+            many sats does this cost me – and what will it still be worth in 10 years? Proof
+            of Worth translates that mindset into a concrete purchase decision.
           </p>
         </div>
         <div class="card">
-          <h3>Für nachhaltige &amp; qualitätsbewusste Konsumenten</h3>
+          <h3>For sustainability- and quality-minded consumers</h3>
           <p>
-            Statt Greenwashing-Siegeln setzen wir auf physische Haltbarkeit, Reparierbarkeit
-            und zeitlose Nutzbarkeit – als kuratierter Filter gegen die Flut an Billigimporten.
+            Instead of greenwashing seals, we rely on physical durability, repairability and
+            timeless usability – a curated filter against the flood of cheap imports.
           </p>
         </div>
       </div>
@@ -72,14 +72,14 @@ const anzahlDiskussion = alleProdukte.filter((p) => p.data.einordnung === 'disku
 
   <section class="section">
     <div class="container">
-      <span class="eyebrow">Nach Lebensbereich</span>
-      <h2>Kategorien</h2>
+      <span class="eyebrow">By category</span>
+      <h2>Categories</h2>
       <div class="grid grid--4">
         {kategorien.map((k) => (
-          <a href={`/produkte?kategorie=${k.key}`} class="kat-card">
+          <a href={`/en/produkte?kategorie=${k.key}`} class="kat-card">
             <Icon name={k.icon} size={26} />
             <span class="kat-card__label">{k.label}</span>
-            <span class="kat-card__count">{k.count} Produkt{k.count === 1 ? '' : 'e'}</span>
+            <span class="kat-card__count">{k.count} product{k.count === 1 ? '' : 's'}</span>
           </a>
         ))}
       </div>
@@ -90,10 +90,10 @@ const anzahlDiskussion = alleProdukte.filter((p) => p.data.einordnung === 'disku
     <div class="container">
       <div class="section-head">
         <div>
-          <span class="eyebrow">Proof-of-Worth-Score</span>
-          <h2>Höchstbewertete Produkte</h2>
+          <span class="eyebrow">Proof-of-Worth score</span>
+          <h2>Top-rated products</h2>
         </div>
-        <a href="/produkte" class="btn btn--ghost">Alle ansehen</a>
+        <a href="/en/produkte" class="btn btn--ghost">View all</a>
       </div>
       <div class="grid grid--3">
         {topProdukte.map((entry) => <ProductCard entry={entry} />)}
@@ -105,19 +105,19 @@ const anzahlDiskussion = alleProdukte.filter((p) => p.data.einordnung === 'disku
     <div class="container stats">
       <div class="stat">
         <span class="stat__num">{alleProdukte.length}</span>
-        <span class="stat__label">Bewertete Produkte</span>
+        <span class="stat__label">Rated products</span>
       </div>
       <div class="stat">
         <span class="stat__num">{anzahlEmpfehlung}</span>
-        <span class="stat__label">Klare Empfehlungen</span>
+        <span class="stat__label">Clear recommendations</span>
       </div>
       <div class="stat">
         <span class="stat__num">{anzahlDiskussion}</span>
-        <span class="stat__label">Bewusst diskussionswürdig</span>
+        <span class="stat__label">Deliberately debatable</span>
       </div>
       <div class="stat">
         <span class="stat__num">4</span>
-        <span class="stat__label">Transparente Score-Kriterien</span>
+        <span class="stat__label">Transparent score criteria</span>
       </div>
     </div>
   </section>
@@ -126,22 +126,22 @@ const anzahlDiskussion = alleProdukte.filter((p) => p.data.einordnung === 'disku
     <div class="container cta-split">
       <div class="card cta-card">
         <Icon name="github" size={26} />
-        <h3>Community-gepflegt über GitHub</h3>
+        <h3>Maintained by the community on GitHub</h3>
         <p>
-          Jedes Produkt ist eine einfache Markdown-Datei mit klaren Bewertungsfeldern.
-          Neue Produkte, Korrekturen oder Langzeitberichte kommen per Pull Request rein –
-          nachvollziehbar und versioniert.
+          Every product is a simple markdown file with clear rating fields. New products,
+          corrections or long-term reports come in via pull request – traceable and
+          versioned.
         </p>
-        <a href="/mitmachen" class="btn btn--primary">Mitmachen</a>
+        <a href="/en/mitmachen" class="btn btn--primary">Contribute</a>
       </div>
       <div class="card cta-card">
         <Icon name="calculator" size={26} />
-        <h3>Cost-per-Use statt Anschaffungspreis</h3>
+        <h3>Cost-per-use instead of sticker price</h3>
         <p>
-          Ein 500-Euro-Gerät, das 20 Jahre hält, ist günstiger als vier 150-Euro-Geräte,
-          die alle 3 Jahre kaputtgehen. Der Rechner macht das sichtbar.
+          A €500 device that lasts 20 years is cheaper than four €150 devices that break
+          every 3 years. The calculator makes that visible.
         </p>
-        <a href="/rechner" class="btn btn--ghost">Zum Rechner</a>
+        <a href="/en/rechner" class="btn btn--ghost">Open the calculator</a>
       </div>
     </div>
   </section>

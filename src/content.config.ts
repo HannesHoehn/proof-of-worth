@@ -40,6 +40,8 @@ const products = defineCollection({
     garantieJahre: z.union([z.number(), z.literal('lifetime')]),
     typischerPreisEUR: z.number(),
     erwarteteLebensdauerJahre: z.number(),
+    // Plain Link zum Hersteller oder Händler (bewusst KEIN Affiliate-/PartnerNet-Link).
+    kaufLink: z.string().url().optional(),
     quellen: z.array(quelle),
     langzeitberichte: z.array(langzeitbericht).default([]),
     veroeffentlicht: z.date(),

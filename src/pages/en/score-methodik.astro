@@ -1,0 +1,142 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+const kriterien = [
+  {
+    icon: 'wrench',
+    titel: 'Repairability & spare parts',
+    frage:
+      'Are spare parts, repair guides, or a manufacturer service available over years or decades? Reference points include iFixit repairability scores.',
+    skala: [
+      '1 — Not repairable, no spare-parts program',
+      '3 — Partially repairable, limited spare-parts availability',
+      '5 — Fully repairable, spare parts available long-term',
+    ],
+  },
+  {
+    icon: 'scale',
+    titel: 'Material & construction',
+    frage:
+      'Solid metal, solid wood, or cast iron vs. composites and plastic. How resistant is the construction to normal wear?',
+    skala: [
+      '1 — Mostly plastic/composite with known weak points',
+      '3 — Mixed construction, solid but with wear parts',
+      '5 — High-quality, durable materials with no known weak points',
+    ],
+  },
+  {
+    icon: 'clock',
+    titel: 'Manufacturer warranty',
+    frage:
+      "How long does the manufacturer actively stand behind the product – beyond statutory warranty?",
+    skala: [
+      '1 — No extended warranty',
+      '3 — 2–5 years manufacturer warranty',
+      '5 — 10+ years or lifetime warranty',
+    ],
+  },
+  {
+    icon: 'heart',
+    titel: 'Resale value',
+    frage:
+      'Does the product retain a meaningful share of its original price on the secondhand market? That is a strong signal of real, lasting value.',
+    skala: [
+      '1 — Practically no resale value',
+      '3 — Moderate resale value in good condition',
+      '5 — Consistently high demand in secondhand markets',
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="Score Methodology"
+  description="How the Proof-of-Worth score is calculated: four transparent criteria, publicly documented and versioned on GitHub."
+>
+  <section class="section section--tight">
+    <div class="container">
+      <span class="eyebrow">Transparency</span>
+      <h1>How the Proof-of-Worth score is built</h1>
+      <p class="lede">
+        Instead of trusting marketing claims, we rate every product against four equally
+        weighted criteria. The rating, including reasoning and sources, lives directly in
+        the product's markdown file – every change is traceable through the Git history.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <div class="formula card">
+        <Icon name="calculator" size={22} />
+        <p>
+          <strong>Proof-of-Worth score</strong> = (repairability + material + warranty +
+          resale value) ÷ 4, rounded to one decimal place.
+        </p>
+      </div>
+
+      <div class="kriterien-list">
+        {kriterien.map((k) => (
+          <div class="kriterium card">
+            <div class="kriterium__head">
+              <Icon name={k.icon} size={24} />
+              <h3>{k.titel}</h3>
+            </div>
+            <p>{k.frage}</p>
+            <ul>
+              {k.skala.map((s) => <li>{s}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>Deliberately open for discussion</h2>
+      <p class="lede">
+        Not every product in the directory is a clear recommendation. Examples like
+        smartphones or battery-powered devices are deliberately marked "debatable" when
+        they score strongly on some criteria but weakly on others. The goal is
+        traceability, not sales promotion – which is why we link the underlying sources
+        for every criterion.
+      </p>
+      <p>
+        Found an error or disagree? <a href="/en/mitmachen">Open an issue or a pull request</a> –
+        the discussion happens publicly on GitHub.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .formula {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 2.2rem;
+  }
+  .formula :global(svg) { color: var(--color-bronze); flex-shrink: 0; }
+  .formula p { margin: 0; }
+  .kriterien-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.4rem;
+  }
+  .kriterium__head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+  }
+  .kriterium__head :global(svg) { color: var(--color-bronze); }
+  .kriterium__head h3 { margin: 0; }
+  .kriterium ul { padding-left: 1.1rem; color: var(--color-ink-soft); font-size: 0.92rem; }
+  .kriterium li { margin-bottom: 0.3rem; }
+
+  @media (max-width: 800px) {
+    .kriterien-list { grid-template-columns: 1fr; }
+  }
+</style>

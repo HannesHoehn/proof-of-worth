@@ -21,6 +21,7 @@ scores:
 garantieJahre: 2
 typischerPreisEUR: 260
 erwarteteLebensdauerJahre: 15
+kaufLink: "https://meindl.de/"
 quellen:
   - label: "Meindl – Service & Reparaturen"
     url: "https://meindl.de/sohlenreparatur/"

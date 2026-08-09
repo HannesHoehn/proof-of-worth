@@ -21,6 +21,7 @@ scores:
 garantieJahre: 1
 typischerPreisEUR: 1200
 erwarteteLebensdauerJahre: 5
+kaufLink: "https://www.apple.com/de/shop/buy-iphone"
 quellen:
   - label: "iFixit – iPhone 17 Pro Teardown"
     url: "https://www.ifixit.com/News/113171/iphone-air-teardown"

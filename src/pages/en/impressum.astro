@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Legal Notice & Privacy" description="Legal notice and privacy information.">
+  <section class="section section--tight">
+    <div class="container article">
+      <span class="eyebrow">Legal</span>
+      <h1>Legal Notice &amp; Privacy</h1>
+
+      <div class="card notice">
+        <strong>Placeholder — fill in before publishing.</strong>
+        <p>
+          Under German law (§ 5 TMG), commercially operated and generally also
+          permanently run private websites are required to carry a legal notice
+          ("Impressum") with a postal address that can accept service of process. Add
+          the name, address, and contact details (email/phone) of the responsible
+          parties before the site goes live. When in doubt, a brief legal review is
+          worthwhile – this is not legal advice.
+        </p>
+      </div>
+
+      <h2>Information pursuant to § 5 TMG</h2>
+      <p>
+        [Name, address]<br />
+        [Contact: email, phone if applicable]
+      </p>
+
+      <h2>Responsible for content</h2>
+      <p>[Name(s) of the operators]</p>
+
+      <h2>Privacy</h2>
+      <p>
+        This site is built as a static website with no backend of its own. If forms,
+        analytics tools, or comment functionality are added later, this privacy notice
+        must be extended accordingly (legal basis, retention period, recipients, right
+        of withdrawal).
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .article { max-width: 720px; }
+  .notice {
+    background: rgba(154, 74, 43, 0.08);
+    border-color: var(--color-warn);
+    margin: 1.5rem 0 2rem;
+  }
+</style>

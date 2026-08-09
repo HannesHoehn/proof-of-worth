@@ -2,6 +2,11 @@
 # Vorlage für neue Produkte. Dateien mit führendem "_" werden von Astro
 # NICHT als Collection-Eintrag gerendert - dupliziere diese Datei und
 # entferne den Unterstrich im neuen Dateinamen.
+#
+# Ablage: src/content/products/de/dein-produkt-slug.md (deutsch, Standard)
+# und optional src/content/products/en/dein-produkt-slug.md (englische
+# Übersetzung, gleicher Dateiname, gleiche scores.*.wert). Siehe
+# CONTRIBUTING.md, Abschnitt "Zweisprachigkeit (DE/EN)".
 name: "Produktname"
 hersteller: "Herstellername"
 kategorie: "werkzeug-outdoor"
@@ -24,6 +29,7 @@ scores:
 garantieJahre: 5
 typischerPreisEUR: 200
 erwarteteLebensdauerJahre: 15
+kaufLink: "https://example.com/produkt" # optional, Plain Link zu Hersteller/Händler - kein Affiliate-Link
 quellen:
   - label: "Herstellerseite - Garantiebedingungen"
     url: "https://example.com"

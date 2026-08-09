@@ -21,6 +21,7 @@ scores:
 garantieJahre: 2
 typischerPreisEUR: 500
 erwarteteLebensdauerJahre: 7
+kaufLink: "https://www.dyson.de/staubsauger/kabellos"
 quellen:
   - label: "Dyson – Ersatzakkus V11"
     url: "https://www.dyson.de/support/journey/tools/970938-01"

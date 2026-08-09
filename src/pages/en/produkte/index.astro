@@ -1,9 +1,9 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import ProductCard from '../../components/ProductCard.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ProductCard from '../../../components/ProductCard.astro';
 import { getCollection } from 'astro:content';
-import { kategorieLabel } from '../../lib/score';
-import { getLangFromUrl, localeOfEntryId } from '../../i18n/utils';
+import { kategorieLabel } from '../../../lib/score';
+import { getLangFromUrl, localeOfEntryId } from '../../../i18n/utils';
 
 const lang = getLangFromUrl(Astro.url);
 const alle = await getCollection('products');
@@ -13,20 +13,20 @@ const kategorien = kategorieKeys.map((key) => [key, kategorieLabel(key, lang)] a
 ---
 
 <BaseLayout
-  title="Produkte"
-  description="Alle bewerteten Produkte im Proof-of-Worth-Verzeichnis, filterbar nach Kategorie und Score."
+  title="Products"
+  description="All rated products in the Proof of Worth directory, filterable by category and score."
 >
   <section class="section section--tight">
     <div class="container">
-      <span class="eyebrow">Verzeichnis</span>
-      <h1>Alle Produkte</h1>
+      <span class="eyebrow">Directory</span>
+      <h1>All products</h1>
       <p class="lede">
-        {alleProdukte.length} bewertete Produkte. Filtere nach Kategorie oder sortiere nach
-        Proof-of-Worth-Score – Empfehlungen ebenso wie bewusst diskussionswürdige Beispiele.
+        {alleProdukte.length} rated products. Filter by category or sort by Proof-of-Worth
+        score – clear recommendations as well as deliberately debatable examples.
       </p>
 
       <div class="filters" id="filters">
-        <button class="chip is-active" data-filter="alle">Alle</button>
+        <button class="chip is-active" data-filter="alle">All</button>
         {kategorien.map(([key, label]) => (
           <button class="chip" data-filter={key}>{label}</button>
         ))}
@@ -37,8 +37,8 @@ const kategorien = kategorieKeys.map((key) => [key, kategorieLabel(key, lang)] a
       </div>
 
       <p id="empty-state" class="empty-state" hidden>
-        Für diese Kategorie ist noch kein Produkt eingetragen.
-        <a href="/mitmachen">Schlag eins vor →</a>
+        No product has been added for this category yet.
+        <a href="/en/mitmachen">Suggest one →</a>
       </p>
     </div>
   </section>
@@ -90,7 +90,7 @@ const kategorien = kategorieKeys.map((key) => [key, kategorieLabel(key, lang)] a
     if (emptyState) emptyState.hidden = visible !== 0;
   }
 
-  // Deep-link support: /produkte?kategorie=werkzeug-outdoor
+  // Deep-link support: /en/produkte?kategorie=werkzeug-outdoor
   const params = new URLSearchParams(window.location.search);
   const initial = params.get('kategorie') ?? 'alle';
   if (filters) {

@@ -1,17 +1,17 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Icon from '../../components/Icon.astro';
-import ProductIllustration from '../../components/ProductIllustration.astro';
-import ZapButton from '../../components/ZapButton.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Icon from '../../../components/Icon.astro';
+import ProductIllustration from '../../../components/ProductIllustration.astro';
+import ZapButton from '../../../components/ZapButton.astro';
 import { getCollection, render } from 'astro:content';
-import { gesamtScore, scoreLabel, kategorieLabel, formatGarantie } from '../../lib/score';
-import { getContributor } from '../../data/contributors';
-import { getLangFromUrl, useTranslations, localeOfEntryId, slugOfEntryId } from '../../i18n/utils';
+import { gesamtScore, scoreLabel, kategorieLabel, formatGarantie } from '../../../lib/score';
+import { getContributor } from '../../../data/contributors';
+import { getLangFromUrl, useTranslations, localeOfEntryId, slugOfEntryId } from '../../../i18n/utils';
 
 export async function getStaticPaths() {
   const alle = await getCollection('products');
   return alle
-    .filter((entry) => localeOfEntryId(entry.id) === 'de')
+    .filter((entry) => localeOfEntryId(entry.id) === 'en')
     .map((entry) => ({
       params: { slug: slugOfEntryId(entry.id) },
       props: { entry },
@@ -38,7 +38,7 @@ const kriterien = [
 <BaseLayout title={d.name} description={d.tagline}>
   <section class="section section--tight">
     <div class="container product-head">
-      <a href="/produkte" class="back-link">{t('produkt.zurueck')}</a>
+      <a href="/en/produkte" class="back-link">{t('produkt.zurueck')}</a>
       <div class="product-head__row">
         <div class="product-illustration-box">
           <ProductIllustration slug={slug} class="product-illustration-box__svg" />
@@ -62,7 +62,7 @@ const kriterien = [
         <span>·</span>
         <span>{formatGarantie(d.garantieJahre, lang)}</span>
         <span>·</span>
-        <span>ca. {d.typischerPreisEUR} € · {d.erwarteteLebensdauerJahre} Jahre erwartete Lebensdauer</span>
+        <span>approx. €{d.typischerPreisEUR} · {d.erwarteteLebensdauerJahre} years expected lifespan</span>
       </div>
 
       {d.kaufLink && (
@@ -78,7 +78,7 @@ const kriterien = [
 
   <section class="section section--alt">
     <div class="container">
-      <h2>Score-Aufschlüsselung</h2>
+      <h2>{t('produkt.scoreAufschluesselung')}</h2>
       <div class="criteria">
         {kriterien.map((k) => (
           <div class="criterion">
@@ -94,7 +94,7 @@ const kriterien = [
         ))}
       </div>
       <p class="criteria-footnote">
-        Details zur Methodik: <a href="/score-methodik">Score-Methodik ansehen</a>
+        {t('produkt.methodikVorspann')} <a href="/en/score-methodik">{t('produkt.methodikLink')}</a>
       </p>
     </div>
   </section>
@@ -107,7 +107,7 @@ const kriterien = [
 
   <section class="section section--alt">
     <div class="container">
-      <h2>Quellen</h2>
+      <h2>{t('produkt.quellen')}</h2>
       <ul class="sources">
         {d.quellen.map((q: any) => (
           <li>
@@ -117,27 +117,24 @@ const kriterien = [
       </ul>
       {d.langzeitberichte.length > 0 && (
         <>
-          <h3>Langzeitberichte aus der Community</h3>
+          <h3>{t('produkt.langzeitberichte')}</h3>
           <ul class="reports">
             {d.langzeitberichte.map((r: any) => (
-              <li><strong>{r.seitJahren} Jahre im Einsatz</strong> — {r.autor}: {r.notiz}</li>
+              <li><strong>{r.seitJahren} {t('produkt.langzeitImEinsatz')}</strong> — {r.autor}: {r.notiz}</li>
             ))}
           </ul>
         </>
       )}
       <p class="contribute-note">
-        Nutzt du dieses Produkt schon seit Jahren? <a href="/mitmachen">Reiche einen Langzeitbericht per Pull Request ein.</a>
+        {t('produkt.langzeitCTA')} <a href="/en/mitmachen">{t('produkt.langzeitCTALink')}</a>
       </p>
     </div>
   </section>
 
   <section class="section">
     <div class="container zap-section">
-      <h2>Diesen Beitrag unterstützen</h2>
-      <p class="lede">
-        Gute Produktanalysen entstehen durch Recherchezeit. Ein Zap geht direkt und ohne
-        Umweg an die Person, die diesen Beitrag geschrieben hat.
-      </p>
+      <h2>{t('produkt.unterstuetzenTitel')}</h2>
+      <p class="lede">{t('produkt.unterstuetzenText')}</p>
       <ZapButton lightningAddress={contributor.lightningAddress} autor={d.autor} />
     </div>
   </section>

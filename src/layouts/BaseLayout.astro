@@ -2,22 +2,28 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import '../styles/global.css';
+import { getLangFromUrl } from '../i18n/utils';
 
 interface Props {
   title: string;
   description?: string;
 }
 
-const {
-  title,
-  description = 'Proof of Worth verknüpft niedrige Zeitpräferenz aus der Bitcoin-Ökonomie mit Buy-It-For-Life-Konsum: ein offenes, quellenbasiertes Verzeichnis wertbeständiger Produkte.',
-} = Astro.props as Props;
+const lang = getLangFromUrl(Astro.url);
+
+const defaultDescription =
+  lang === 'en'
+    ? 'Proof of Worth connects low time preference from Bitcoin economics with Buy-It-For-Life consumption: an open, source-based directory of products that hold their value.'
+    : 'Proof of Worth verknüpft niedrige Zeitpräferenz aus der Bitcoin-Ökonomie mit Buy-It-For-Life-Konsum: ein offenes, quellenbasiertes Verzeichnis wertbeständiger Produkte.';
+
+const { title, description = defaultDescription } = Astro.props as Props;
 
 const pageTitle = title === 'Proof of Worth' ? title : `${title} · Proof of Worth`;
+const skipLinkLabel = lang === 'en' ? 'Skip to content' : 'Zum Inhalt springen';
 ---
 
 <!doctype html>
-<html lang="de">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -30,7 +36,7 @@ const pageTitle = title === 'Proof of Worth' ? title : `${title} · Proof of Wor
     <meta name="twitter:card" content="summary" />
   </head>
   <body>
-    <a href="#main" class="skip-link">Zum Inhalt springen</a>
+    <a href="#main" class="skip-link">{skipLinkLabel}</a>
     <Header />
     <main id="main">
       <slot />

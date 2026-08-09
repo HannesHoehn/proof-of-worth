@@ -21,6 +21,7 @@ scores:
 garantieJahre: 7
 typischerPreisEUR: 650
 erwarteteLebensdauerJahre: 25
+kaufLink: "https://www.ankarsrum.com/ankarsrum-assistent-original/"
 quellen:
   - label: "Ankarsrum – 7 Years Warranty"
     url: "https://www.ankarsrum.com/us/7-years-warranty-with-ankarsrum/"

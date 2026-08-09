@@ -21,6 +21,7 @@ scores:
 garantieJahre: "lifetime"
 typischerPreisEUR: 280
 erwarteteLebensdauerJahre: 40
+kaufLink: "https://www.lecreuset.de/de_DE/p/runder-brater-aus-gusseisen/CI1177.html"
 quellen:
   - label: "Le Creuset – Warranty Information"
     url: "https://www.lecreuset.com/warranty.html"

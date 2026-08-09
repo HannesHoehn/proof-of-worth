@@ -1,5 +1,10 @@
 ---
 import Icon from './Icon.astro';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 const year = new Date().getFullYear();
 ---
 
@@ -10,45 +15,42 @@ const year = new Date().getFullYear();
         <Icon name="bitcoin" size={20} />
         <span>Proof of Worth</span>
       </div>
-      <p class="footer__claim">
-        Low Time Preference trifft Buy It For Life. Ein offenes,
-        community-gepflegtes Verzeichnis wertbeständiger Produkte.
-      </p>
+      <p class="footer__claim">{t('footer.claim')}</p>
     </div>
 
     <div>
-      <h4>Erkunden</h4>
+      <h4>{t('footer.erkunden')}</h4>
       <ul class="footer__links">
-        <li><a href="/produkte">Alle Produkte</a></li>
-        <li><a href="/score-methodik">Score-Methodik</a></li>
-        <li><a href="/rechner">Cost-per-Use-Rechner</a></li>
+        <li><a href={getRelativeLocaleUrl(lang, '/produkte')}>{t('footer.alleProdukte')}</a></li>
+        <li><a href={getRelativeLocaleUrl(lang, '/score-methodik')}>{t('footer.methodik')}</a></li>
+        <li><a href={getRelativeLocaleUrl(lang, '/rechner')}>{t('footer.rechner')}</a></li>
       </ul>
     </div>
 
     <div>
-      <h4>Mitmachen</h4>
+      <h4>{t('footer.mitmachenHeading')}</h4>
       <ul class="footer__links">
-        <li><a href="/mitmachen">Produkt vorschlagen</a></li>
-        <li><a href="/ueber-uns">Philosophie</a></li>
-        <li><a href="/unterstuetzen">Unterstützen (Lightning/Nostr)</a></li>
+        <li><a href={getRelativeLocaleUrl(lang, '/mitmachen')}>{t('footer.produktVorschlagen')}</a></li>
+        <li><a href={getRelativeLocaleUrl(lang, '/ueber-uns')}>{t('footer.philosophie')}</a></li>
+        <li><a href={getRelativeLocaleUrl(lang, '/unterstuetzen')}>{t('footer.unterstuetzenLink')}</a></li>
       </ul>
     </div>
 
     <div>
-      <h4>Projekt</h4>
+      <h4>{t('footer.projekt')}</h4>
       <ul class="footer__links">
         <li>
           <a href="https://github.com/" target="_blank" rel="noopener noreferrer">
-            GitHub-Repository
+            {t('footer.githubRepo')}
           </a>
         </li>
-        <li><a href="/impressum">Impressum &amp; Datenschutz</a></li>
+        <li><a href={getRelativeLocaleUrl(lang, '/impressum')}>{t('footer.impressum')}</a></li>
       </ul>
     </div>
   </div>
 
   <div class="container footer__bottom">
-    <span>© {year} Proof of Worth · Open Source, verwaltet über GitHub</span>
+    <span>© {year} Proof of Worth · {t('footer.bottom')}</span>
   </div>
 </footer>
 

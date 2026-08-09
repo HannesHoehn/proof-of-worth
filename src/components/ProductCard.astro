@@ -1,27 +1,32 @@
 ---
 import Icon from './Icon.astro';
 import ProductIllustration from './ProductIllustration.astro';
-import { gesamtScore, kategorieLabels } from '../lib/score';
+import { gesamtScore, kategorieLabel } from '../lib/score';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { getLangFromUrl, useTranslations, slugOfEntryId } from '../i18n/utils';
 
 const { entry } = Astro.props as { entry: any };
 const d = entry.data;
 const score = gesamtScore(d.scores);
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const slug = slugOfEntryId(entry.id);
 ---
 
-<a href={`/produkte/${entry.id}`} class="pcard" data-kategorie={d.kategorie} data-score={score}>
+<a href={getRelativeLocaleUrl(lang, `/produkte/${slug}`)} class="pcard" data-kategorie={d.kategorie} data-score={score}>
   <div class="pcard__image">
-    <ProductIllustration slug={entry.id} class="pcard__illustration" />
+    <ProductIllustration slug={slug} class="pcard__illustration" />
   </div>
   <div class="pcard__top">
     <span class="pcard__icon"><Icon name={d.icon} size={22} /></span>
     <span class={`badge ${d.einordnung === 'empfehlung' ? 'badge--empfehlung' : 'badge--diskussion'}`}>
-      {d.einordnung === 'empfehlung' ? 'Empfehlung' : 'Diskussionswürdig'}
+      {d.einordnung === 'empfehlung' ? t('badge.empfehlung') : t('badge.diskussion')}
     </span>
   </div>
   <h3 class="pcard__name">{d.name}</h3>
   <p class="pcard__tagline">{d.tagline}</p>
   <div class="pcard__meta">
-    <span class="pcard__kategorie">{kategorieLabels[d.kategorie]}</span>
+    <span class="pcard__kategorie">{kategorieLabel(d.kategorie, lang)}</span>
     <span class="score-pill" title="Proof-of-Worth-Score">{score}</span>
   </div>
 </a>

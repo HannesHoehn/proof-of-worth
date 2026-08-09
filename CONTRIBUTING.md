@@ -7,7 +7,9 @@ Pull Request.
 
 1. Fork das Repository und erstelle einen Branch, z. B. `add-produkt-victorinox`.
 2. Kopiere `src/content/products/_TEMPLATE.md` und speichere sie unter einem sprechenden
-   Dateinamen (z. B. `victorinox-taschenmesser.md`) im selben Ordner.
+   Dateinamen (z. B. `victorinox-taschenmesser.md`) unter `src/content/products/de/`
+   (und idealerweise auch als englische Übersetzung unter `src/content/products/en/` –
+   siehe [Zweisprachigkeit (DE/EN)](#zweisprachigkeit-deen) unten).
 3. Fülle alle Felder aus. Wichtig:
    - `kategorie` muss einer der vier festen Werte sein: `werkzeug-outdoor`,
      `haushalt-kueche`, `tech-hardware`, `bekleidung`.
@@ -65,6 +67,29 @@ export const contributors: Record<string, Contributor> = {
 
 Ohne hinterlegte Adresse zeigt die Seite automatisch einen Hinweis statt eines kaputten
 Buttons – ein Eintrag hier ist optional, aber empfohlen.
+
+## Zweisprachigkeit (DE/EN)
+
+Die Seite ist zweisprachig: Deutsch ist Standard (`/…`), Englisch liegt unter `/en/…`.
+Für künftige Beiträge gilt:
+
+- **Produkte**: Jede Produktdatei existiert idealerweise doppelt – unter
+  `src/content/products/de/<slug>.md` und `src/content/products/en/<slug>.md`, mit
+  identischem Dateinamen und identischen Score-Werten (`scores.*.wert`), aber übersetzten
+  Texten (`tagline`, `begruendung`, Fließtext). Eine fehlende englische Version bricht
+  nichts – das Produkt erscheint dann nur auf der deutschen Seite –, ist aber nicht das
+  Ziel.
+- **Neue Seiten**: für jede neue Seite unter `src/pages/*.astro` eine englische
+  Entsprechung unter `src/pages/en/*.astro` mit demselben Pfadsegment anlegen, damit
+  `getRelativeLocaleUrl()` in Header/Footer/ProductCard korrekt verlinkt.
+- **Wiederkehrende UI-Textbausteine** (Navigation, Badges, Kategorie-Namen, Score-Labels)
+  leben zentral in `src/i18n/ui.ts` – neue Schlüssel dort für beide Sprachen ergänzen,
+  nicht hart in Komponenten verdrahten.
+- **Lange Fließtexte** (Essays, Anleitungen) werden nicht in `ui.ts` übersetzt, sondern
+  als vollständige, eigenständige `.astro`-Datei unter `src/pages/en/` dupliziert.
+
+Wenn du nicht zweisprachig beitragen möchtest, reiche einfach die deutsche Version ein –
+kein Problem, aber bitte im PR erwähnen, dass die englische Version noch fehlt.
 
 ## Qualitätskriterien für Pull Requests
 

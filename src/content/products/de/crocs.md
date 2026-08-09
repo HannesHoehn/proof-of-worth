@@ -21,6 +21,7 @@ scores:
 garantieJahre: 0
 typischerPreisEUR: 45
 erwarteteLebensdauerJahre: 3
+kaufLink: "https://www.crocs.de/p/classic-clog/10001.html"
 quellen:
   - label: "Crocs UK – Croslite Material"
     url: "https://www.crocs.co.uk/pg/crocs-lock/technology-footwear-crocs-lock.html"
