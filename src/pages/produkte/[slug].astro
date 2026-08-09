@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
+import ProductIllustration from '../../components/ProductIllustration.astro';
 import ZapButton from '../../components/ZapButton.astro';
 import { getCollection, render } from 'astro:content';
 import { gesamtScore, scoreLabel, kategorieLabels, formatGarantie } from '../../lib/score';
@@ -33,8 +34,10 @@ const kriterien = [
     <div class="container product-head">
       <a href="/produkte" class="back-link">← Alle Produkte</a>
       <div class="product-head__row">
-        <span class="product-icon"><Icon name={d.icon} size={36} /></span>
-        <div>
+        <div class="product-illustration-box">
+          <ProductIllustration slug={entry.id} class="product-illustration-box__svg" />
+        </div>
+        <div class="product-head__text">
           <span class={`badge ${d.einordnung === 'empfehlung' ? 'badge--empfehlung' : 'badge--diskussion'}`}>
             {d.einordnung === 'empfehlung' ? 'Empfehlung' : 'Diskussionswürdig'}
           </span>
@@ -138,7 +141,22 @@ const kriterien = [
     align-items: flex-start;
     gap: 1.2rem;
   }
-  .product-icon { color: var(--color-bronze); flex-shrink: 0; margin-top: 0.3rem; }
+  .product-illustration-box {
+    flex-shrink: 0;
+    width: 96px;
+    height: 96px;
+    border-radius: var(--radius-lg);
+    background: var(--color-paper-dim);
+    border: 1px solid var(--color-line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .product-illustration-box__svg {
+    width: 68px;
+    height: 68px;
+  }
+  .product-head__text { flex: 1; min-width: 0; }
   .score-box {
     margin-left: auto;
     text-align: center;

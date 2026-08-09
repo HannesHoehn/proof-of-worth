@@ -1,0 +1,101 @@
+---
+// Eigene Strichzeichnungen pro Produkt (kein Fotomaterial von Herstellern,
+// Amazon o.ä.). Stil passend zu Icon.astro: Tinte (--color-ink) für die
+// Kontur, Bitcoin-Orange (--color-bronze) für Akzente/Details.
+// Erweiterbar: neuen Eintrag mit dem Datei-Slug aus src/content/products/
+// als Key ergänzen.
+interface Props {
+  slug: string;
+  class?: string;
+}
+const { slug, class: className = '' } = Astro.props as Props;
+
+const illustrations: Record<string, string> = {
+  'leatherman-multitool': `
+    <g stroke="#1c1a17" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M70 30 L50 70 L45 110"/>
+      <path d="M70 30 L90 70 L95 110"/>
+      <path d="M58 55 L82 55"/>
+    </g>
+    <circle cx="70" cy="55" r="6" fill="#f7931a"/>
+    <g stroke="#f7931a" stroke-width="3.2" fill="none" stroke-linecap="round">
+      <path d="M70 55 L100 40 L112 30"/>
+    </g>
+  `,
+  'le-creuset-braeter': `
+    <g stroke="#1c1a17" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M35 70 Q35 100 70 100 Q105 100 105 70 L102 65 L38 65 Z"/>
+      <path d="M35 65 Q35 45 70 45 Q105 45 105 65"/>
+      <rect x="20" y="60" width="14" height="8" rx="3"/>
+      <rect x="106" y="60" width="14" height="8" rx="3"/>
+    </g>
+    <circle cx="70" cy="42" r="5" fill="#f7931a"/>
+    <path d="M55 45 Q70 38 85 45" stroke="#f7931a" stroke-width="3" fill="none" stroke-linecap="round"/>
+  `,
+  'ankarsrum-assistent-original': `
+    <g stroke="#1c1a17" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M45 60 Q45 95 70 95 Q95 95 95 60 L95 55 L45 55 Z"/>
+      <rect x="35" y="95" width="70" height="10" rx="3"/>
+      <path d="M100 55 L100 35 Q100 25 88 25 L75 25"/>
+    </g>
+    <path d="M75 25 Q68 35 68 50" stroke="#f7931a" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    <circle cx="68" cy="52" r="4" fill="#f7931a"/>
+  `,
+  'meindl-wanderschuhe': `
+    <g stroke="#1c1a17" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M40 100 L40 55 Q40 40 58 38 L80 38 L100 60 L108 62 Q112 65 112 72 L112 100 Z"/>
+      <path d="M44 44 L56 56 M48 38 L62 52 M52 34 L68 48"/>
+    </g>
+    <g stroke="#f7931a" stroke-width="3.4" stroke-linecap="round">
+      <path d="M40 104 L112 104"/>
+      <path d="M44 110 L48 110 M56 110 L60 110 M68 110 L72 110 M80 110 L84 110 M92 110 L96 110 M104 110 L108 110"/>
+    </g>
+  `,
+  iphone: `
+    <rect x="50" y="25" width="40" height="80" rx="10" fill="none" stroke="#1c1a17" stroke-width="3.2"/>
+    <rect x="56" y="33" width="16" height="14" rx="4" fill="none" stroke="#1c1a17" stroke-width="2.6"/>
+    <circle cx="60" cy="40" r="2.6" fill="#f7931a"/>
+    <circle cx="68" cy="40" r="2.6" fill="#f7931a"/>
+    <line x1="60" y1="98" x2="80" y2="98" stroke="#f7931a" stroke-width="3" stroke-linecap="round"/>
+  `,
+  crocs: `
+    <g stroke="#1c1a17" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M30 85 Q30 60 55 55 Q90 48 108 65 Q118 75 112 90 Q108 98 95 98 L38 98 Q30 98 30 85Z"/>
+      <path d="M45 55 Q60 40 80 48"/>
+    </g>
+    <g fill="#f7931a">
+      <circle cx="55" cy="72" r="3"/>
+      <circle cx="68" cy="70" r="3"/>
+      <circle cx="81" cy="70" r="3"/>
+      <circle cx="94" cy="73" r="3"/>
+    </g>
+  `,
+  'dyson-akkusauger': `
+    <g stroke="#1c1a17" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M55 30 L85 30 L88 55 L52 55 Z"/>
+      <path d="M88 40 Q108 42 108 55 Q108 66 92 66 L88 66"/>
+      <line x1="70" y1="55" x2="70" y2="95"/>
+      <rect x="55" y="95" width="30" height="10" rx="3"/>
+    </g>
+    <path d="M108 46 Q116 46 116 54" stroke="#f7931a" stroke-width="3" fill="none" stroke-linecap="round"/>
+  `,
+};
+
+const content = illustrations[slug] ?? `
+  <g stroke="#1c1a17" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M30 55 L70 35 L110 55 L70 75 L30 55Z"/>
+    <path d="M30 55 L30 95 L70 115 L70 75"/>
+    <path d="M110 55 L110 95 L70 115"/>
+  </g>
+`;
+---
+
+<svg
+  viewBox="0 0 140 140"
+  xmlns="http://www.w3.org/2000/svg"
+  class={className}
+  role="img"
+  aria-hidden="true"
+>
+  <Fragment set:html={content} />
+</svg>
