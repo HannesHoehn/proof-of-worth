@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
 import ProductIllustration from '../../components/ProductIllustration.astro';
 import ZapButton from '../../components/ZapButton.astro';
+import NostrComments from '../../components/NostrComments.astro';
 import { getCollection, render } from 'astro:content';
 import { gesamtScore, scoreLabel, kategorieLabel, formatGarantie } from '../../lib/score';
 import { getContributor } from '../../data/contributors';
@@ -141,6 +142,12 @@ const kriterien = [
       <ZapButton lightningAddress={contributor.lightningAddress} autor={d.autor} />
     </div>
   </section>
+
+  <section class="section section--alt">
+    <div class="container nostr-section">
+      <NostrComments lang={lang} shareTitle={d.name} />
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
@@ -215,6 +222,7 @@ const kriterien = [
   .contribute-note { margin-top: 1.2rem; font-size: 0.94rem; color: var(--color-ink-soft); }
   .zap-section { max-width: 620px; }
   .zap-section .lede { margin-bottom: 1.2rem; }
+  .nostr-section { max-width: 760px; }
 
   @media (max-width: 700px) {
     .product-head__row { flex-wrap: wrap; }

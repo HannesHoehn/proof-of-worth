@@ -62,6 +62,23 @@ export const ui = {
     'produkt.kaufen': 'Zum Angebot',
     'produkt.kaufHinweis':
       'Plain Link zu Hersteller/Händler – kein Affiliate-Link, wir verdienen daran nichts.',
+    'nostr.title': 'Kommentare via Nostr',
+    'nostr.intro':
+      'Kommentare laufen über das dezentrale Nostr-Protokoll – kein Konto bei uns nötig, dafür eine Nostr-Browser-Erweiterung zum Signieren.',
+    'nostr.placeholder': 'Deine Meinung zu diesem Produkt …',
+    'nostr.submit': 'Kommentieren',
+    'nostr.submitting': 'Wird veröffentlicht …',
+    'nostr.needExtension': 'Zum Kommentieren brauchst du eine Nostr-Erweiterung wie',
+    'nostr.loading': 'Kommentare werden geladen …',
+    'nostr.empty': 'Noch keine Kommentare – sei die erste Stimme.',
+    'nostr.error': 'Kommentare konnten nicht geladen werden.',
+    'nostr.publishError': 'Kommentar konnte nicht veröffentlicht werden.',
+    'nostr.zapButton': 'Zap',
+    'nostr.zapNoAddress': 'Kein Zap möglich – keine Lightning-Adresse im Profil',
+    'nostr.you': 'Du (gerade veröffentlicht)',
+    'nostr.shareButton': 'Auf Nostr teilen',
+    'nostr.shareSent': 'Geteilt ✓',
+    'nostr.shareNeedExtension': 'Zum Teilen brauchst du eine Nostr-Erweiterung.',
   },
   en: {
     'nav.produkte': 'Products',
@@ -114,6 +131,23 @@ export const ui = {
     'produkt.kaufen': 'View offer',
     'produkt.kaufHinweis':
       'Plain link to the manufacturer/retailer – not an affiliate link, we earn nothing from it.',
+    'nostr.title': 'Comments via Nostr',
+    'nostr.intro':
+      'Comments run over the decentralized Nostr protocol – no account with us needed, just a Nostr browser extension to sign with.',
+    'nostr.placeholder': 'Your take on this product …',
+    'nostr.submit': 'Post comment',
+    'nostr.submitting': 'Publishing …',
+    'nostr.needExtension': 'To comment you need a Nostr extension like',
+    'nostr.loading': 'Loading comments …',
+    'nostr.empty': 'No comments yet – be the first voice.',
+    'nostr.error': 'Comments could not be loaded.',
+    'nostr.publishError': 'Comment could not be published.',
+    'nostr.zapButton': 'Zap',
+    'nostr.zapNoAddress': 'No zap possible – no Lightning address in profile',
+    'nostr.you': 'You (just posted)',
+    'nostr.shareButton': 'Share on Nostr',
+    'nostr.shareSent': 'Shared ✓',
+    'nostr.shareNeedExtension': 'You need a Nostr extension to share.',
   },
 } as const;
 

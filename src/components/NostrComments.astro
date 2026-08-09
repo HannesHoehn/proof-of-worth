@@ -1,0 +1,475 @@
+---
+// Kommentare + Zaps über das dezentrale Nostr-Protokoll (NIP-22 Kommentare,
+// NIP-57 Zaps). Komplett clientseitig, kein eigenes Backend - siehe
+// src/lib/nostr-client.ts für die Relay-/Signierlogik und /unterstuetzen
+// für die Nutzer:innen-Erklärung inkl. bekannter Einschränkungen.
+import Icon from './Icon.astro';
+import { useTranslations } from '../i18n/utils';
+import type { Locale } from '../i18n/ui';
+
+interface Props {
+  lang: Locale;
+  shareTitle: string;
+}
+
+const { lang, shareTitle } = Astro.props;
+const t = useTranslations(lang);
+
+const i18n = {
+  placeholder: t('nostr.placeholder'),
+  submit: t('nostr.submit'),
+  submitting: t('nostr.submitting'),
+  needExtension: t('nostr.needExtension'),
+  loading: t('nostr.loading'),
+  empty: t('nostr.empty'),
+  error: t('nostr.error'),
+  publishError: t('nostr.publishError'),
+  zapButton: t('nostr.zapButton'),
+  zapNoAddress: t('nostr.zapNoAddress'),
+  you: t('nostr.you'),
+  shareSent: t('nostr.shareSent'),
+  shareNeedExtension: t('nostr.shareNeedExtension'),
+  shareTitle,
+  locale: lang === 'en' ? 'en-US' : 'de-DE',
+};
+---
+
+<section class="nostr-comments" data-i18n={JSON.stringify(i18n)}>
+  <div class="nostr-comments__head">
+    <h2><Icon name="message" size={20} /> {t('nostr.title')}</h2>
+    <button type="button" class="btn btn--ghost btn--sm nostr-share">
+      <Icon name="share" size={14} /> {t('nostr.shareButton')}
+    </button>
+  </div>
+  <p class="nostr-comments__intro">{t('nostr.intro')}</p>
+
+  <form class="nostr-form">
+    <textarea class="nostr-form__textarea" placeholder={i18n.placeholder} rows="3" required></textarea>
+    <div class="nostr-form__row">
+      <button type="submit" class="btn btn--primary btn--sm nostr-form__submit">{i18n.submit}</button>
+    </div>
+    <p class="nostr-form__status" role="status" aria-live="polite" hidden></p>
+  </form>
+
+  <div class="nostr-list">
+    <p class="nostr-list__status">{i18n.loading}</p>
+  </div>
+</section>
+
+<style>
+  .nostr-comments { margin-top: 1rem; }
+  .nostr-comments__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .nostr-comments__head h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+  }
+  .nostr-comments__head h2 :global(svg) { color: var(--color-bronze); }
+  .nostr-comments__intro {
+    font-size: 0.9rem;
+    color: var(--color-ink-soft);
+    margin: 0.5rem 0 1.4rem;
+    max-width: 60ch;
+  }
+
+  .nostr-form {
+    background: #fff;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    margin-bottom: 1.8rem;
+  }
+  .nostr-form__textarea {
+    width: 100%;
+    resize: vertical;
+    min-height: 4.5rem;
+    padding: 0.7rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-line);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+  }
+  .nostr-form__row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.7rem;
+  }
+  .nostr-form__status {
+    margin: 0.6rem 0 0;
+    font-size: 0.85rem;
+    color: var(--color-ink-soft);
+  }
+  .nostr-form__status.is-error { color: var(--color-warn); }
+  .nostr-form__status a { color: var(--color-bronze-dark); }
+
+  .nostr-list__status {
+    color: var(--color-ink-soft);
+    font-size: 0.92rem;
+  }
+
+  .nostr-comment {
+    display: flex;
+    gap: 0.8rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .nostr-comment:last-child { border-bottom: none; }
+  .nostr-comment__avatar {
+    flex-shrink: 0;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    background: var(--color-paper-dim);
+    background-size: cover;
+    background-position: center;
+    border: 1px solid var(--color-line);
+  }
+  .nostr-comment__body { flex: 1; min-width: 0; }
+  .nostr-comment__meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .nostr-comment__author { font-weight: 700; font-size: 0.92rem; }
+  .nostr-comment__time { font-size: 0.78rem; color: var(--color-ink-soft); }
+  .nostr-comment__content {
+    margin: 0.3rem 0 0.5rem;
+    font-size: 0.94rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .nostr-comment__zap-row { display: flex; align-items: center; gap: 0.6rem; }
+  .nostr-comment__zap {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border: 1px solid var(--color-line);
+    background: var(--color-paper-dim);
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--color-ink);
+  }
+  .nostr-comment__zap:hover:not(:disabled) { border-color: var(--color-bronze); color: var(--color-bronze-dark); }
+  .nostr-comment__zap:disabled { opacity: 0.5; cursor: not-allowed; }
+  .nostr-comment__zap-total { font-size: 0.78rem; color: var(--color-ink-soft); }
+
+  .nostr-zap-panel {
+    margin-top: 0.6rem;
+    padding: 0.8rem;
+    background: #fff;
+    border: 1px dashed var(--color-line);
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+  .nostr-zap-panel__amounts { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .nostr-zap-panel__amounts button {
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-line);
+    background: var(--color-paper-dim);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .nostr-zap-panel__amounts button.is-active { border-color: var(--color-bronze); background: var(--color-bronze); color: #fff; }
+  .nostr-zap-panel__status { font-size: 0.82rem; color: var(--color-ink-soft); margin: 0; }
+  .nostr-zap-panel__qr { width: 160px; height: 160px; }
+  .nostr-zap-panel__invoice {
+    font-size: 0.72rem;
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background: var(--color-paper-dim);
+    padding: 0.3rem 0.5rem;
+    border-radius: 4px;
+  }
+</style>
+
+<script>
+  // @ts-nocheck -- bewusst ungetypt: viel dynamisches DOM-Bauen, siehe
+  // src/lib/nostr-client.ts für die typisierte Kernlogik. astro check
+  // würde hier sonst viele "Element vs. HTMLElement"-Fehler werfen.
+  //
+  // Übersetzte Strings kommen server-seitig über ein data-i18n-Attribut
+  // rein (nicht über define:vars!): define:vars zwingt Astro-Scripts in
+  // den is:inline-Modus, in dem ES-Module-Imports wie unten NICHT gebündelt
+  // würden - das hätte den kompletten Kommentar-Client zur Laufzeit stumm
+  // brechen lassen.
+  import {
+    fetchComments,
+    publishComment,
+    fetchProfile,
+    fetchZapTotal,
+    buildZapInvoice,
+    shortenPubkey,
+    hasExtension,
+    currentPageUrl,
+    shareCurrentPage,
+  } from '../lib/nostr-client';
+  import QRCode from 'qrcode';
+
+  // Astro-Komponenten-Scripts laufen als ES-Module - document.currentScript
+  // ist dafür laut Spec immer null, deshalb direkt per Klasse suchen.
+  const root = document.querySelector('.nostr-comments');
+  if (root) {
+    const i18n = JSON.parse(root.dataset.i18n || '{}');
+    const form = root.querySelector('.nostr-form');
+    const textarea = root.querySelector('.nostr-form__textarea');
+    const submitBtn = root.querySelector('.nostr-form__submit');
+    const statusEl = root.querySelector('.nostr-form__status');
+    const listEl = root.querySelector('.nostr-list');
+    const shareBtn = root.querySelector('.nostr-share');
+
+    const url = currentPageUrl();
+    // Eigene, gerade erst veröffentlichte Kommentare zwischenspeichern: Relays
+    // brauchen einen Moment, bis sie den Event zurückliefern - ohne das hier
+    // würde ein frisch gepostetes Zwischenspeicher-Update sonst durch den
+    // nächsten loadComments()-Refresh wieder verschwinden.
+    const postedEvents = new Map();
+
+    function setFormStatus(text, isError = false) {
+      if (!statusEl) return;
+      statusEl.hidden = !text;
+      statusEl.textContent = text;
+      statusEl.classList.toggle('is-error', isError);
+    }
+
+    function formatTime(ts) {
+      try {
+        return new Date(ts * 1000).toLocaleString(i18n.locale, {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      } catch {
+        return '';
+      }
+    }
+
+    function renderComment(event) {
+      const article = document.createElement('article');
+      article.className = 'nostr-comment';
+      article.dataset.id = event.id;
+
+      const avatar = document.createElement('div');
+      avatar.className = 'nostr-comment__avatar';
+
+      const body = document.createElement('div');
+      body.className = 'nostr-comment__body';
+
+      const meta = document.createElement('div');
+      meta.className = 'nostr-comment__meta';
+      const author = document.createElement('span');
+      author.className = 'nostr-comment__author';
+      author.textContent = shortenPubkey(event.pubkey);
+      const time = document.createElement('span');
+      time.className = 'nostr-comment__time';
+      time.textContent = postedEvents.has(event.id) ? i18n.you : formatTime(event.created_at);
+      meta.append(author, time);
+
+      const content = document.createElement('p');
+      content.className = 'nostr-comment__content';
+      content.textContent = event.content;
+
+      const zapRow = document.createElement('div');
+      zapRow.className = 'nostr-comment__zap-row';
+      const zapBtn = document.createElement('button');
+      zapBtn.type = 'button';
+      zapBtn.className = 'nostr-comment__zap';
+      zapBtn.innerHTML = `⚡ ${i18n.zapButton}`;
+      zapBtn.disabled = true;
+      const zapTotal = document.createElement('span');
+      zapTotal.className = 'nostr-comment__zap-total';
+      zapRow.append(zapBtn, zapTotal);
+
+      body.append(meta, content, zapRow);
+      article.append(avatar, body);
+      listEl.appendChild(article);
+
+      // Profil (Name/Bild/Lightning-Adresse) und Zap-Summe asynchron nachladen.
+      fetchProfile(event.pubkey).then((profile) => {
+        if (!profile) return;
+        if (profile.name) author.textContent = profile.name;
+        if (profile.picture) avatar.style.backgroundImage = `url(${JSON.stringify(profile.picture).slice(1, -1)})`;
+        if (profile.lud16) {
+          zapBtn.disabled = false;
+          zapBtn.title = '';
+          zapBtn.addEventListener('click', () => toggleZapPanel(body, event, profile.lud16), { once: true });
+        } else {
+          zapBtn.title = i18n.zapNoAddress;
+        }
+      });
+
+      fetchZapTotal(event.id).then(({ sats, count }) => {
+        if (count > 0) zapTotal.textContent = `${sats} sats · ${count}⚡`;
+      });
+
+      return article;
+    }
+
+    function toggleZapPanel(container, event, lud16) {
+      const panel = document.createElement('div');
+      panel.className = 'nostr-zap-panel';
+
+      const amounts = document.createElement('div');
+      amounts.className = 'nostr-zap-panel__amounts';
+      let selected = 21;
+      [21, 210, 2100].forEach((sats, idx) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = String(sats);
+        if (idx === 0) b.classList.add('is-active');
+        b.addEventListener('click', () => {
+          selected = sats;
+          amounts.querySelectorAll('button').forEach((el) => el.classList.remove('is-active'));
+          b.classList.add('is-active');
+        });
+        amounts.appendChild(b);
+      });
+
+      const payBtn = document.createElement('button');
+      payBtn.type = 'button';
+      payBtn.className = 'btn btn--primary btn--sm';
+      payBtn.textContent = `⚡ ${i18n.zapButton}`;
+
+      const status = document.createElement('p');
+      status.className = 'nostr-zap-panel__status';
+
+      panel.append(amounts, payBtn, status);
+      container.appendChild(panel);
+
+      payBtn.addEventListener('click', async () => {
+        payBtn.disabled = true;
+        status.textContent = '…';
+        try {
+          const invoice = await buildZapInvoice({
+            recipientPubkey: event.pubkey,
+            lud16,
+            sats: selected,
+            eventId: event.id,
+          });
+
+          const webln = window.webln;
+          if (webln) {
+            try {
+              await webln.enable();
+              await webln.sendPayment(invoice);
+              status.textContent = `⚡ ${selected} sats!`;
+              payBtn.remove();
+              return;
+            } catch {
+              // WebLN abgebrochen/fehlgeschlagen - auf QR-Code zurückfallen.
+            }
+          }
+
+          const img = document.createElement('img');
+          img.className = 'nostr-zap-panel__qr';
+          img.alt = 'QR-Code';
+          img.src = await QRCode.toDataURL(`lightning:${invoice}`, { width: 160, margin: 1 });
+          const code = document.createElement('code');
+          code.className = 'nostr-zap-panel__invoice';
+          code.textContent = invoice;
+          status.textContent = '';
+          panel.append(img, code);
+        } catch (err) {
+          status.textContent = err instanceof Error ? err.message : 'Fehler';
+        } finally {
+          payBtn.disabled = false;
+        }
+      });
+    }
+
+    async function loadComments() {
+      try {
+        const fetched = await fetchComments(url);
+        const fetchedIds = new Set(fetched.map((e) => e.id));
+        const missingOwn = [...postedEvents.values()].filter((e) => !fetchedIds.has(e.id));
+        const events = [...missingOwn, ...fetched];
+        listEl.innerHTML = '';
+        if (events.length === 0) {
+          const empty = document.createElement('p');
+          empty.className = 'nostr-list__status';
+          empty.textContent = i18n.empty;
+          listEl.appendChild(empty);
+          return;
+        }
+        events.forEach(renderComment);
+      } catch {
+        listEl.innerHTML = '';
+        const error = document.createElement('p');
+        error.className = 'nostr-list__status';
+        error.textContent = i18n.error;
+        listEl.appendChild(error);
+      }
+    }
+
+    form?.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const content = textarea.value.trim();
+      if (!content) return;
+
+      if (!hasExtension()) {
+        setFormStatus(
+          `${i18n.needExtension} Alby (getalby.com) oder nos2x.`,
+          true,
+        );
+        return;
+      }
+
+      submitBtn.disabled = true;
+      setFormStatus(i18n.submitting);
+      try {
+        const signed = await publishComment(url, content);
+        postedEvents.set(signed.id, signed);
+        textarea.value = '';
+        setFormStatus('');
+        const existingEmpty = listEl.querySelector('.nostr-list__status');
+        if (existingEmpty) listEl.innerHTML = '';
+        const article = renderComment(signed);
+        // Neuer Kommentar zuerst anzeigen (Liste ist chronologisch absteigend sortiert).
+        if (listEl.firstChild !== article) listEl.insertBefore(article, listEl.firstChild);
+      } catch {
+        setFormStatus(i18n.publishError, true);
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    shareBtn?.addEventListener('click', async () => {
+      shareBtn.disabled = true;
+      try {
+        const result = await shareCurrentPage(i18n.shareTitle);
+        if (result === 'no-extension') {
+          alert(i18n.shareNeedExtension);
+        } else {
+          const original = shareBtn.innerHTML;
+          shareBtn.textContent = i18n.shareSent;
+          setTimeout(() => (shareBtn.innerHTML = original), 2200);
+        }
+      } catch {
+        alert(i18n.shareNeedExtension);
+      } finally {
+        shareBtn.disabled = false;
+      }
+    });
+
+    loadComments();
+  }
+</script>

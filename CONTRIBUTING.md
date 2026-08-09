@@ -68,6 +68,24 @@ export const contributors: Record<string, Contributor> = {
 Ohne hinterlegte Adresse zeigt die Seite automatisch einen Hinweis statt eines kaputten
 Buttons – ein Eintrag hier ist optional, aber empfohlen.
 
+## Nostr-Kommentare & Zaps lokal testen
+
+Jede Produktseite hat auch einen Kommentarbereich über Nostr
+(`src/components/NostrComments.astro`, Logik in `src/lib/nostr-client.ts`, siehe
+`/unterstuetzen` für Details zu NIP-22/NIP-57). Zum lokalen Entwickeln oder Testen
+brauchst du:
+
+1. `npm install` (die Abhängigkeit `nostr-tools` ist in `package.json` eingetragen).
+2. Eine NIP-07-Browser-Extension, z. B. [Alby](https://getalby.com) oder
+   [nos2x](https://github.com/fiatjaf/nos2x) – ohne Extension lassen sich Kommentare
+   nur lesen, nicht schreiben.
+3. Für Zap-Tests auf Kommentare: eine Lightning-Adresse (`lud16`) im eigenen
+   Nostr-Profil hinterlegt (kind&nbsp;0) sowie idealerweise WebLN (Alby deckt beides ab).
+
+Die Kommentare landen auf öffentlichen Relays (siehe README) – zum Testen reicht ein
+Kommentar auf einer beliebigen Produktseite, ein Reload lädt ihn über die Relays wieder
+ein.
+
 ## Zweisprachigkeit (DE/EN)
 
 Die Seite ist zweisprachig: Deutsch ist Standard (`/…`), Englisch liegt unter `/en/…`.

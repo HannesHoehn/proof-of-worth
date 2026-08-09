@@ -5,7 +5,7 @@ import Icon from '../components/Icon.astro';
 
 <BaseLayout
   title="Unterstützen"
-  description="Lightning-Tipping für Proof of Worth: so funktioniert es, und was für vollständige Nostr-Zaps noch fehlt."
+  description="Lightning-Tipping und Nostr-Kommentare bei Proof of Worth: wie beides funktioniert, und wo die bewussten Grenzen liegen."
 >
   <section class="section section--tight">
     <div class="container">
@@ -13,8 +13,9 @@ import Icon from '../components/Icon.astro';
       <h1>Lightning &amp; Nostr</h1>
       <p class="lede">
         Gute Produktanalysen entstehen durch Recherchezeit. Jede Produktseite hat einen
-        Zap-Button, mit dem du die Autor:in direkt per Lightning unterstützen kannst – ohne
-        Umweg über das Projekt.
+        Zap-Button, mit dem du die Autor:in direkt per Lightning unterstützen kannst, und
+        einen Kommentarbereich über das dezentrale Nostr-Protokoll – beides ohne Umweg über
+        das Projekt.
       </p>
     </div>
   </section>
@@ -39,27 +40,46 @@ import Icon from '../components/Icon.astro';
         </div>
 
         <div class="card">
-          <h3><Icon name="nodes" size={20} /> Volle Nostr-Zaps (NIP-57)</h3>
+          <h3><Icon name="nodes" size={20} /> Nostr-Kommentare &amp; Zaps — live</h3>
           <p>
-            Bewusst noch nicht umgesetzt: ein signierter Zap-Request über eine
-            Nostr-Extension (NIP-07) und eine öffentlich prüfbare Zap-Quittung auf
-            Nostr-Relays – wie es Clients wie Damus oder Primal machen.
+            Jede Produktseite hat einen Kommentarbereich über das dezentrale
+            Nostr-Protokoll (NIP-22). Mit einer Nostr-Erweiterung wie
+            <a href="https://getalby.com" target="_blank" rel="noopener noreferrer">Alby</a>
+            oder <a href="https://github.com/fiatjaf/nos2x" target="_blank" rel="noopener noreferrer">nos2x</a>
+            kannst du direkt aus dem Browser signieren – ohne Konto bei uns.
           </p>
-          <p class="status status--todo">Für die volle Ausbaustufe fehlt noch:</p>
+          <p class="status status--live">Auch Kommentare lassen sich per Zap honorieren:</p>
           <ul>
-            <li>Einbindung von <code>nostr-tools</code> für Event-Erstellung/-Signierung</li>
-            <li>Ein Relay-Set, auf das sich das Projekt verlässt</li>
-            <li>Anzeige der Zap-Quittungen auf der Produktseite (sozialer Beweis)</li>
+            <li>Signierte Zap-Requests + öffentlich auf Relays sichtbare Zap-Quittungen (NIP-57)</li>
+            <li>Der Zap geht an die Lightning-Adresse, die im Nostr-Profil der kommentierenden Person hinterlegt ist</li>
+            <li>Ohne hinterlegte Adresse im Profil ist der Zap-Button für diesen Kommentar deaktiviert</li>
           </ul>
         </div>
       </div>
 
       <div class="card next-step">
+        <h3><Icon name="scale" size={18} /> Bekannte Grenzen dieser Umsetzung</h3>
+        <p>
+          Ehrlich gesagt: Ein dezentrales Kommentarsystem hat Kompromisse, die wir bewusst
+          in Kauf nehmen, statt sie zu verstecken.
+        </p>
+        <ul>
+          <li>Es gibt keine Moderation durch uns – Kommentare landen direkt auf öffentlichen Relays. Dein Nostr-Client (Alby, Damus, Primal, …) bringt eigene Mute-/Block-Listen mit.</li>
+          <li>Wir fragen standardmäßig eine feste Auswahl an Relays ab (relay.damus.io, nos.lol, relay.nostr.band, relay.primal.net) – Kommentare auf anderen Relays sehen wir hier nicht zwangsläufig.</li>
+          <li>Der <code>lnurl</code>-Tag im Zap-Request enthält bei uns die reine Lightning-Adresse statt einer streng spec-konform bech32-kodierten LNURL – das genügt für Zahlung und unsere eigene Quittungs-Zählung, kann aber in seltenen Fällen abweichen, wie exotischere Nostr-Clients das anzeigen.</li>
+        </ul>
+      </div>
+
+      <div class="card next-step">
         <h3>Wie du deine Lightning-Adresse einträgst</h3>
         <p>
-          Trag dich in <code>src/data/contributors.ts</code> mit deinem Autor:innen-Namen
-          (identisch zum <code>autor</code>-Feld in deinen Produktdateien) und deiner
-          Lightning-Adresse ein. Details und Beispiel: <a href="/mitmachen#lightning">Mitmachen-Seite</a>.
+          Für den Artikel-Zap: trag dich in <code>src/data/contributors.ts</code> mit deinem
+          Autor:innen-Namen (identisch zum <code>autor</code>-Feld in deinen Produktdateien)
+          und deiner Lightning-Adresse ein. Details und Beispiel:
+          <a href="/mitmachen#lightning">Mitmachen-Seite</a>. Für Zaps auf deine
+          <em>Kommentare</em> reicht ein <code>lud16</code>-Feld in deinem ganz normalen
+          Nostr-Profil (kind&nbsp;0) – das verwaltest du direkt in deinem Nostr-Client, nicht
+          hier im Repository.
         </p>
       </div>
     </div>
@@ -74,4 +94,6 @@ import Icon from '../components/Icon.astro';
   .card li { margin-bottom: 0.35rem; }
   .card code { background: var(--color-paper-dim); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.85em; }
   .next-step { margin-top: 1.5rem; }
+  .next-step h3 { display: flex; align-items: center; gap: 0.5rem; }
+  .next-step h3 :global(svg) { color: var(--color-bronze); }
 </style>

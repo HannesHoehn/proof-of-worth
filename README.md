@@ -62,19 +62,21 @@ src/
     ui.ts                    # Zentrales Übersetzungs-Wörterbuch (Navigation, Badges, …)
     utils.ts                 # getLangFromUrl, useTranslations, slugOfEntryId, …
   components/                # Header, Footer, ProductCard, Icon, ProductIllustration,
-                              # ZapButton – alles eigene SVGs/Komponenten
+                              # ZapButton, NostrComments – alles eigene SVGs/Komponenten
   layouts/BaseLayout.astro
   lib/score.ts                # Score-Berechnung & lokalisierte Labels
+  lib/nostr-client.ts         # Client-seitige Nostr-Anbindung (Kommentare + Zaps)
   data/contributors.ts        # Autor:in -> Lightning-Adresse (für Zaps)
   pages/
     index.astro                # Deutsch (Standard, kein Prefix)
     produkte/index.astro        # Liste + Filter
-    produkte/[slug].astro       # Detailseite je Produkt, inkl. Illustration + Zap-Button
+    produkte/[slug].astro       # Detailseite je Produkt, inkl. Illustration, Zap-Button
+                                 # und Nostr-Kommentare
     score-methodik.astro
     rechner.astro                # Cost-per-Use/TCO-Rechner
     ueber-uns.astro
     mitmachen.astro
-    unterstuetzen.astro          # Lightning: live. Volle Nostr-Zaps (NIP-57): Fahrplan
+    unterstuetzen.astro          # Lightning-Tipping + Nostr-Kommentare/Zaps: beides live
     impressum.astro               # Platzhalter, vor Go-Live ausfüllen!
     en/                            # Englische Entsprechung jeder obigen Seite (/en/…)
 ```
@@ -95,8 +97,31 @@ gehen direkt von der Wallet der zappenden Person an die in `src/data/contributor
 hinterlegte Lightning-Adresse der Autor:in – das Projekt selbst verwaltet nie Schlüssel
 oder Guthaben.
 
-Volle Nostr-Zaps (NIP-57, signierter Zap-Request + Zap-Quittung auf Relays) sind bewusst
-noch nicht umgesetzt, siehe `/unterstuetzen` für den Stand und die offenen Punkte.
+## Nostr-Kommentare & Zaps (NIP-22 / NIP-57)
+
+Jede Produktseite hat einen Kommentarbereich (`src/components/NostrComments.astro`,
+Logik in `src/lib/nostr-client.ts`), der komplett über das dezentrale Nostr-Protokoll
+läuft – ohne eigenes Backend:
+
+- **Lesen**: Kommentare werden per `nostr-tools`/`SimplePool` von einem festen
+  Relay-Set (relay.damus.io, nos.lol, relay.nostr.band, relay.primal.net) geladen
+  (NIP-22, kind 1111, referenziert die Produkt-URL über `I`/`K`-Tags nach NIP-73).
+- **Schreiben**: Signierung über eine NIP-07-Browser-Extension (z. B. Alby, nos2x) –
+  ohne Extension ist der Bereich nur lesbar.
+- **Zaps auf Kommentare**: volle NIP-57-Zap-Requests (kind 9734, signiert) +
+  öffentlich auf Relays sichtbare Zap-Quittungen (kind 9735), ausgezahlt an die im
+  Nostr-Profil (`lud16`) der kommentierenden Person hinterlegte Lightning-Adresse.
+- Bekannte, bewusste Einschränkung: der `lnurl`-Tag im Zap-Request enthält die reine
+  Lightning-Adresse statt einer bech32-kodierten LNURL (spart eine zusätzliche
+  Abhängigkeit), und es gibt keine Moderation – siehe `/unterstuetzen` für Details.
+
+Abhängigkeit: `nostr-tools` (in `package.json` ergänzt). **Nach dem Pull unbedingt
+`npm install` ausführen**, sonst schlägt der Build fehl.
+
+Dieses Feature wurde ohne lauffähige lokale `astro check`/`astro build`-Verifikation im
+Sandbox-Environment entwickelt (Plattform-Mismatch, siehe Git-Historie). Bitte vor dem
+Deploy lokal mit `npm install && npm run build` sowie einer NIP-07-fähigen Extension
+(z. B. Alby, die auch WebLN kann) testen und Konsolenfehler melden.
 
 ## Mitmachen
 
@@ -119,8 +144,11 @@ GitHub Pages oder Vercel funktioniert der Standard-Astro-Workflow ohne Anpassung
 - [ ] `astro.config.mjs` → `site` auf die tatsächliche Domain setzen, falls abweichend
 - [ ] Lightning-Adressen der Autor:innen in `src/data/contributors.ts` eintragen (sonst
       zeigt der Zap-Button nur den Hinweis „noch keine Adresse hinterlegt")
-- [ ] Nostr-Zap-Integration (`/unterstuetzen`) ist bewusst nur als Fahrplan angelegt,
-      nicht als funktionierende Funktion – siehe Seite für die offenen Punkte
+- [ ] `npm install` ausführen (neue Abhängigkeit `nostr-tools` für die
+      Kommentar-/Zap-Funktion) und danach `npm run build` lokal verifizieren – im
+      Entwicklungs-Sandbox konnte dieses Feature nicht kompiliert/getestet werden
+- [ ] Nostr-Kommentare/-Zaps lokal mit einer NIP-07-Extension (z. B. Alby) durchklicken:
+      Kommentar schreiben, Zap auf einen Kommentar, Teilen-Button
 
 ## Lizenz
 
