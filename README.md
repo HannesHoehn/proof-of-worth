@@ -31,8 +31,9 @@ Details und Hintergrund: [`/ueber-uns`](src/pages/ueber-uns.astro).
 - Eigene, handgezeichnete SVG-Icons und Produkt-Illustrationen
   (`src/components/Icon.astro`, `src/components/ProductIllustration.astro`) – bewusst
   keine Produktfotos oder Fremdmaterial, aus Urheberrechtsgründen.
-- Kein UI-Framework nötig – Interaktivität (Filter, TCO-Rechner, Zap-Button) läuft über
-  kleine Vanilla-JS-Snippets direkt in den `.astro`-Dateien.
+- Kein UI-Framework nötig – Interaktivität (Filter, TCO-Rechner, Zap-Button,
+  Kaufkraft-Vergleich) läuft über kleine Vanilla-JS-Snippets direkt in den
+  `.astro`-Dateien.
 - Statischer Output, deploybar auf Netlify, Vercel, GitHub Pages o. ä.
 
 ## Lokal starten
@@ -74,6 +75,7 @@ src/
                                  # und Nostr-Kommentare
     score-methodik.astro
     rechner.astro                # Cost-per-Use/TCO-Rechner
+    kaufkraft.astro               # Bitcoin-Kaufkraft-Vergleich (Fiat-Preis vs. Sats, live)
     ueber-uns.astro
     mitmachen.astro
     unterstuetzen.astro          # Lightning-Tipping + Nostr-Kommentare/Zaps: beides live
@@ -122,6 +124,45 @@ Dieses Feature wurde ohne lauffähige lokale `astro check`/`astro build`-Verifik
 Sandbox-Environment entwickelt (Plattform-Mismatch, siehe Git-Historie). Bitte vor dem
 Deploy lokal mit `npm install && npm run build` sowie einer NIP-07-fähigen Extension
 (z. B. Alby, die auch WebLN kann) testen und Konsolenfehler melden.
+
+## Bitcoin-Kaufkraft-Vergleich
+
+`/kaufkraft` (bzw. `/en/kaufkraft`) illustriert Bitcoin-Deflation anhand der Produkte im
+Verzeichnis: Für ein gewähltes Produkt und einen per Schieberegler wählbaren Zeitraum
+(1–10 Jahre) wird verglichen, wie viele Sats derselbe Euro-Nominalpreis damals vs. heute
+gekostet hätte. Aktueller und historischer BTC/EUR-Kurs werden live und ohne eigenes
+Backend abgerufen, gestaffelt über drei öffentliche, keylose APIs (jeweils per
+Konsolen-Test am 11.08.2026 verifiziert):
+
+1. **Coinbase** (`/v2/prices/BTC-EUR/spot`, mit `?date=` für historische Kurse) – für den
+   aktuellen Kurs zuverlässig, historisch aber nur für ca. die letzten ~2 Jahre (danach
+   404 „rate not found").
+2. **Bitstamp** (`/v2/ohlc/btceur/`) – springt für ältere Zeiträume ein, liefert echte
+   Tageskurse auch mehrere Jahre zurück.
+3. **CoinGecko** (`/simple/price` bzw. `/coins/bitcoin/history`) als letzter Fallback –
+   deren kostenloser Tarif begrenzt historische Anfragen inzwischen auf 365 Tage
+   (`error_code 10012`), taugt also nur noch für kurze Zeiträume.
+
+Der Schieberegler ist bewusst auf 10 Jahre gedeckelt (nicht auf ein rundes „seit
+Bitcoin-Genesis"-Maximum): Bitstamp, unser verlässlichster Anbieter für ältere
+Zeiträume, hat erst seit ca. 2016/2017 einen echten BTC/EUR-Handelsplatz mit
+belastbaren Tageskursen. Für die Jahre davor (2011–2015, Mt.-Gox-Ära) wären die
+verfügbaren Kurse ohnehin aus einer extrem dünnen, kaum liquiden Frühphase – nicht die
+Art seriöser Quelle, auf die sich dieses Projekt sonst stützt.
+
+CoinMarketCap und TradingView wurden bewusst nicht verwendet: Erstere blockt
+Browser-Anfragen per CORS und verlangt einen API-Key, der laut eigenen
+Nutzungsbedingungen nicht im Client-Code stehen darf; Letztere bietet gar keine
+offizielle öffentliche Daten-API an. Beides hätte eine echte Backend-Komponente (z. B.
+Netlify-Funktion als Proxy) gebraucht, die dieses Projekt bewusst nicht hat.
+
+Bewusste Vereinfachung: Der Euro-Nominalpreis des Produkts wird als über den Zeitraum
+unverändert angenommen (keine recherchierten historischen Einzelhandelspreise). Da
+Produkte in Euro tendenziell eher teurer als günstiger werden, ist der reale Effekt in
+der Praxis eher noch größer als hier gezeigt. Keine Anlageberatung – die Seite selbst
+weist das transparent aus. Da die Kursabfrage von einer externen, öffentlichen API ohne
+Key abhängt, kann sie bei Rate-Limits fehlschlagen; die Seite zeigt in dem Fall einen
+Fehlerhinweis mit Retry-Button statt falscher Zahlen.
 
 ## Mitmachen
 

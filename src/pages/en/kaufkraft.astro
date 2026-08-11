@@ -1,0 +1,520 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { getCollection } from 'astro:content';
+import { getLangFromUrl, useTranslations, localeOfEntryId, slugOfEntryId } from '../../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+const alle = await getCollection('products');
+const produkte = alle
+  .filter((entry) => localeOfEntryId(entry.id) === lang)
+  .map((entry) => ({
+    slug: slugOfEntryId(entry.id),
+    name: entry.data.name,
+    hersteller: entry.data.hersteller,
+    preis: entry.data.typischerPreisEUR,
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+const defaultSlug =
+  produkte.find((p) => p.slug === 'leatherman-multitool')?.slug ?? produkte[0]?.slug ?? '';
+
+// Alle dynamischen Textbausteine gehen als data-Objekt ins Client-Skript, damit
+// die Übersetzungen zentral in i18n/ui.ts bleiben statt im Skript verdoppelt zu werden.
+const i18n = {
+  jahrSingular: t('kaufkraft.jahrSingular'),
+  jahrePlural: t('kaufkraft.jahrePlural'),
+  jahrDativ: t('kaufkraft.jahrDativ'),
+  jahreDativ: t('kaufkraft.jahreDativ'),
+  spalteDamals: t('kaufkraft.spalteDamals'),
+  verdictWeniger: t('kaufkraft.verdictWeniger'),
+  verdictMehr: t('kaufkraft.verdictMehr'),
+  verdictGleich: t('kaufkraft.verdictGleich'),
+  opportunityText: t('kaufkraft.opportunityText'),
+  disclaimer1: t('kaufkraft.disclaimer1'),
+  datenstand: t('kaufkraft.datenstand'),
+  locale: lang === 'de' ? 'de-DE' : 'en-US',
+};
+---
+
+<BaseLayout title={t('kaufkraft.title')} description={t('kaufkraft.intro')}>
+  <section class="section section--tight">
+    <div class="container">
+      <span class="eyebrow"><Icon name="bitcoin" size={14} /> {t('kaufkraft.eyebrow')}</span>
+      <h1>{t('kaufkraft.title')}</h1>
+      <p class="lede">{t('kaufkraft.intro')}</p>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container kk">
+      <div class="card kk-controls">
+        <label>
+          {t('kaufkraft.produktLabel')}
+          <select id="kk-produkt">
+            {produkte.map((p) => (
+              <option value={p.slug} selected={p.slug === defaultSlug}>
+                {p.name} — {p.hersteller}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label>
+          {t('kaufkraft.zeitraumLabel')}: <span id="kk-jahre-label"></span>
+          <input type="range" id="kk-jahre" min="1" max="10" step="1" value="5" />
+        </label>
+
+        <p class="kk-preis-hinweis">
+          {t('kaufkraft.preisLabel')}: <strong id="kk-preis-anzeige">–</strong>
+        </p>
+      </div>
+
+      <div class="card kk-status" id="kk-loading">
+        <p>{t('kaufkraft.ladeKurs')}</p>
+      </div>
+
+      <div class="card kk-status kk-status--error" id="kk-error" hidden>
+        <p>{t('kaufkraft.fehlerKurs')}</p>
+        <button class="btn btn--ghost" id="kk-retry" type="button">{t('kaufkraft.retry')}</button>
+      </div>
+
+      <div class="card kk-result" id="kk-result" hidden>
+        <div class="kk-compare">
+          <div class="kk-col">
+            <span class="kk-col__heading" id="kk-heading-damals">{t('kaufkraft.spalteDamals')}</span>
+            <div class="kk-metric">
+              <span class="kk-metric__label">{t('kaufkraft.kursLabel')}</span>
+              <span class="kk-metric__value" id="kk-kurs-damals">–</span>
+            </div>
+            <div class="kk-metric">
+              <span class="kk-metric__label">{t('kaufkraft.satsLabel')}</span>
+              <span class="kk-metric__value kk-metric__value--big" id="kk-sats-damals">–</span>
+            </div>
+            <div class="score-bar kk-bar"><span id="kk-bar-damals"></span></div>
+          </div>
+
+          <div class="kk-col">
+            <span class="kk-col__heading">{t('kaufkraft.spalteHeute')}</span>
+            <div class="kk-metric">
+              <span class="kk-metric__label">{t('kaufkraft.kursLabel')}</span>
+              <span class="kk-metric__value" id="kk-kurs-heute">–</span>
+            </div>
+            <div class="kk-metric">
+              <span class="kk-metric__label">{t('kaufkraft.satsLabel')}</span>
+              <span class="kk-metric__value kk-metric__value--big" id="kk-sats-heute">–</span>
+            </div>
+            <div class="score-bar kk-bar"><span id="kk-bar-heute"></span></div>
+          </div>
+        </div>
+
+        <p class="kk-verdict" id="kk-verdict"></p>
+
+        <p class="kk-opportunity">
+          <strong>{t('kaufkraft.opportunityLabel')}:</strong> <span id="kk-opportunity-text"></span>
+        </p>
+
+        <p class="kk-datenstand" id="kk-datenstand"></p>
+      </div>
+
+      <div class="card kk-disclaimer">
+        <h3><Icon name="scale" size={18} /> {t('kaufkraft.disclaimerTitle')}</h3>
+        <ul>
+          <li id="kk-disclaimer1"></li>
+          <li>{t('kaufkraft.disclaimer2')}</li>
+          <li>{t('kaufkraft.disclaimer3')}</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .kk-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: flex-end;
+    margin-bottom: 1.5rem;
+  }
+  .kk-controls label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--color-ink-soft);
+    flex: 1 1 240px;
+  }
+  .kk-controls select,
+  .kk-controls input[type='range'] {
+    font-family: var(--font-body);
+  }
+  .kk-controls select {
+    padding: 0.6rem 0.7rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-line);
+    font-size: 0.98rem;
+    background: #fff;
+  }
+  .kk-controls input[type='range'] {
+    accent-color: var(--color-bronze);
+    width: 100%;
+  }
+  #kk-jahre-label {
+    color: var(--color-bronze-dark);
+    font-weight: 700;
+  }
+  .kk-preis-hinweis {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--color-ink-soft);
+    flex: 1 1 100%;
+  }
+
+  .kk-status {
+    text-align: center;
+    color: var(--color-ink-soft);
+    margin-bottom: 1.5rem;
+  }
+  .kk-status--error { color: var(--color-warn); }
+  .kk-status--error p { margin-bottom: 0.9rem; }
+
+  .kk-result { margin-bottom: 1.5rem; }
+  .kk-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.8rem;
+  }
+  .kk-col__heading {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+  }
+  .kk-metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .kk-metric__label { color: var(--color-ink-soft); font-size: 0.86rem; }
+  .kk-metric__value { font-weight: 600; }
+  .kk-metric__value--big {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--color-bronze-dark);
+  }
+  .kk-bar { margin-top: 0.8rem; }
+
+  .kk-verdict {
+    margin-top: 1.8rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--color-line);
+    font-size: 1.08rem;
+    font-weight: 600;
+  }
+  .kk-opportunity {
+    margin-top: 0.6rem;
+    font-size: 0.94rem;
+    color: var(--color-ink-soft);
+  }
+  .kk-datenstand {
+    margin-top: 0.8rem;
+    margin-bottom: 0;
+    font-size: 0.78rem;
+    color: var(--color-ink-soft);
+  }
+
+  .kk-disclaimer h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.02rem;
+  }
+  .kk-disclaimer h3 :global(svg) { color: var(--color-bronze); }
+  .kk-disclaimer ul { padding-left: 1.2rem; color: var(--color-ink-soft); font-size: 0.9rem; margin: 0; }
+  .kk-disclaimer li { margin-bottom: 0.5rem; }
+  .kk-disclaimer li:last-child { margin-bottom: 0; }
+
+  @media (max-width: 640px) {
+    .kk-compare { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script define:vars={{ produkte, defaultSlug, i18n, lang }}>
+  // Live-Kursabruf im Browser gegen die öffentliche CoinGecko-API, ohne eigenes
+  // Backend und ohne API-Key - siehe kaufkraft.disclaimer2 auf dieser Seite.
+  // define:vars macht dieses Skript zu einem klassischen (nicht-modularen)
+  // Inline-Skript, deshalb bewusst kein TypeScript hier (keine `as X`-Casts,
+  // keine Typannotationen) und keine import-Statements.
+  function formatDateISO(date) {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return yyyy + '-' + mm + '-' + dd;
+  }
+
+  function formatDateDMY(date) {
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return dd + '-' + mm + '-' + yyyy;
+  }
+
+  function unixDayStart(date) {
+    return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 1000);
+  }
+
+  async function fetchJson(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('http-' + res.status);
+    return res.json();
+  }
+
+  // Reihenfolge = Priorität, getrennt geprüft (Konsolen-Test vom 11.08.2026):
+  // - Coinbase: aktueller Kurs zuverlässig (CORS ok), historischer Kurs über
+  //   ?date= aber nur für ca. die letzten ~2 Jahre (danach 404 "rate not
+  //   found") - bleibt trotzdem zuerst dran, weil er für den aktuellen Kurs
+  //   am saubersten ist.
+  // - Bitstamp: liefert über den OHLC-Endpunkt (CORS ok, keylos) auch für
+  //   mehrere Jahre zurückliegende Tageskurse echte Daten (getestet bis
+  //   2021) - deckt damit genau die Lücke ab, die Coinbase bei älteren
+  //   Zeiträumen lässt.
+  // - CoinGecko als letzter Fallback: die kostenlose Public-API begrenzt
+  //   historische Anfragen inzwischen auf die letzten 365 Tage (bestätigt
+  //   per error_code 10012 "exceeds the allowed time range"), ist also nur
+  //   für kurze Zeiträume nützlich.
+  // CoinMarketCap und TradingView fallen bewusst raus: beide verlangen einen
+  // Key (der laut deren eigenen Nutzungsbedingungen nicht im Client-Code
+  // stehen darf bzw. gar nicht offiziell öffentlich angeboten wird) und
+  // bräuchten eine Backend-Komponente, die dieses Projekt bewusst nicht hat.
+  const PROVIDERS = [
+    {
+      name: 'coinbase',
+      current: async () => {
+        const data = await fetchJson('https://api.coinbase.com/v2/prices/BTC-EUR/spot');
+        const amount = data && data.data && parseFloat(data.data.amount);
+        if (!amount) throw new Error('no-price');
+        return amount;
+      },
+      historical: async (date) => {
+        const data = await fetchJson(
+          'https://api.coinbase.com/v2/prices/BTC-EUR/spot?date=' + formatDateISO(date)
+        );
+        const amount = data && data.data && parseFloat(data.data.amount);
+        if (!amount) throw new Error('no-price');
+        return amount;
+      },
+    },
+    {
+      name: 'bitstamp',
+      current: async () => {
+        const data = await fetchJson('https://www.bitstamp.net/api/v2/ticker/btceur/');
+        const amount = data && parseFloat(data.last);
+        if (!amount) throw new Error('no-price');
+        return amount;
+      },
+      historical: async (date) => {
+        const start = unixDayStart(date);
+        const data = await fetchJson(
+          'https://www.bitstamp.net/api/v2/ohlc/btceur/?step=86400&limit=1&start=' + start
+        );
+        const candle = data && data.data && data.data.ohlc && data.data.ohlc[0];
+        const amount = candle && parseFloat(candle.close);
+        if (!amount) throw new Error('no-price');
+        return amount;
+      },
+    },
+    {
+      name: 'coingecko',
+      current: async () => {
+        const data = await fetchJson(
+          'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur'
+        );
+        const amount = data && data.bitcoin && data.bitcoin.eur;
+        if (!amount) throw new Error('no-price');
+        return amount;
+      },
+      historical: async (date) => {
+        const data = await fetchJson(
+          'https://api.coingecko.com/api/v3/coins/bitcoin/history?date=' +
+            formatDateDMY(date) +
+            '&localization=false'
+        );
+        const amount =
+          data && data.market_data && data.market_data.current_price && data.market_data.current_price.eur;
+        if (!amount) throw new Error('no-price');
+        return amount;
+      },
+    },
+  ];
+
+  const priceCache = new Map();
+
+  async function fetchWithFallback(kind, cacheKey, date) {
+    if (priceCache.has(cacheKey)) return priceCache.get(cacheKey);
+    let lastError;
+    for (const provider of PROVIDERS) {
+      try {
+        const price = await provider[kind](date);
+        priceCache.set(cacheKey, price);
+        return price;
+      } catch (err) {
+        lastError = err;
+      }
+    }
+    throw lastError || new Error('all-providers-failed');
+  }
+
+  function fetchCurrentPrice() {
+    return fetchWithFallback('current', 'current');
+  }
+
+  function fetchHistoricalPrice(date) {
+    return fetchWithFallback('historical', formatDateISO(date), date);
+  }
+
+  function euro(n) {
+    return n.toLocaleString(i18n.locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+  }
+
+  function sats(n) {
+    return Math.round(n).toLocaleString(i18n.locale);
+  }
+
+  function eurToSats(eurBetrag, btcEurPreis) {
+    return (eurBetrag / btcEurPreis) * 1e8;
+  }
+
+  function jahreLabel(n) {
+    return n + ' ' + (n === 1 ? i18n.jahrSingular : i18n.jahrePlural);
+  }
+
+  function jahreDativ(n) {
+    return n + ' ' + (n === 1 ? i18n.jahrDativ : i18n.jahreDativ);
+  }
+
+  function zeitraumPhrase(n) {
+    const kern = jahreDativ(n);
+    return lang === 'de' ? 'vor ' + kern : kern + ' ago';
+  }
+
+  function fillTemplate(str, vars) {
+    return Object.keys(vars).reduce((acc, key) => acc.split('{' + key + '}').join(vars[key]), str);
+  }
+
+  function setStatus(state) {
+    document.getElementById('kk-loading').hidden = state !== 'loading';
+    document.getElementById('kk-error').hidden = state !== 'error';
+    document.getElementById('kk-result').hidden = state !== 'ok';
+  }
+
+  function currentProduct() {
+    const select = document.getElementById('kk-produkt');
+    return produkte.find((p) => p.slug === select.value) || produkte[0];
+  }
+
+  let requestToken = 0;
+
+  async function update() {
+    const token = ++requestToken;
+    const produkt = currentProduct();
+    if (!produkt) return;
+    const jahre = parseInt(document.getElementById('kk-jahre').value, 10);
+
+    document.getElementById('kk-jahre-label').textContent = jahreLabel(jahre);
+    document.getElementById('kk-preis-anzeige').textContent = euro(produkt.preis);
+    document.getElementById('kk-heading-damals').textContent =
+      i18n.spalteDamals + ' (' + zeitraumPhrase(jahre) + ')';
+    document.getElementById('kk-disclaimer1').textContent = fillTemplate(i18n.disclaimer1, {
+      n: zeitraumPhrase(jahre),
+    });
+
+    setStatus('loading');
+
+    const damalsDate = new Date();
+    damalsDate.setFullYear(damalsDate.getFullYear() - jahre);
+
+    try {
+      const [heutePreis, damalsPreis] = await Promise.all([
+        fetchCurrentPrice(),
+        fetchHistoricalPrice(damalsDate),
+      ]);
+      if (token !== requestToken) return;
+
+      const satsHeute = eurToSats(produkt.preis, heutePreis);
+      const satsDamals = eurToSats(produkt.preis, damalsPreis);
+
+      document.getElementById('kk-kurs-damals').textContent = euro(damalsPreis);
+      document.getElementById('kk-kurs-heute').textContent = euro(heutePreis);
+      document.getElementById('kk-sats-damals').textContent = sats(satsDamals) + ' sats';
+      document.getElementById('kk-sats-heute').textContent = sats(satsHeute) + ' sats';
+
+      const maxSats = Math.max(satsDamals, satsHeute, 1);
+      document.getElementById('kk-bar-damals').style.width = (satsDamals / maxSats) * 100 + '%';
+      document.getElementById('kk-bar-heute').style.width = (satsHeute / maxSats) * 100 + '%';
+
+      const verdictEl = document.getElementById('kk-verdict');
+      if (satsDamals > 0) {
+        const diffPct = ((satsDamals - satsHeute) / satsDamals) * 100;
+        if (Math.round(diffPct) === 0) {
+          verdictEl.textContent = fillTemplate(i18n.verdictGleich, { n: jahreDativ(jahre) });
+        } else if (diffPct > 0) {
+          verdictEl.textContent = fillTemplate(i18n.verdictWeniger, {
+            pct: Math.round(diffPct).toLocaleString(i18n.locale),
+            n: jahreDativ(jahre),
+          });
+        } else {
+          verdictEl.textContent = fillTemplate(i18n.verdictMehr, {
+            pct: Math.round(-diffPct).toLocaleString(i18n.locale),
+            n: jahreDativ(jahre),
+          });
+        }
+      }
+
+      const wertHeute = (satsDamals / 1e8) * heutePreis;
+      document.getElementById('kk-opportunity-text').textContent = fillTemplate(i18n.opportunityText, {
+        sats: sats(satsDamals),
+        wert: euro(wertHeute),
+        preis: euro(produkt.preis),
+      });
+
+      document.getElementById('kk-datenstand').textContent =
+        i18n.datenstand + ': ' + new Date().toLocaleString(i18n.locale);
+
+      setStatus('ok');
+    } catch (err) {
+      if (token !== requestToken) return;
+      setStatus('error');
+    }
+  }
+
+  let debounceTimer;
+  function scheduleUpdate(delay) {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(update, delay);
+  }
+
+  const select = document.getElementById('kk-produkt');
+  const slider = document.getElementById('kk-jahre');
+  const retryBtn = document.getElementById('kk-retry');
+
+  if (select) select.value = defaultSlug;
+  if (slider) {
+    document.getElementById('kk-jahre-label').textContent = jahreLabel(parseInt(slider.value, 10));
+    slider.addEventListener('input', () => {
+      document.getElementById('kk-jahre-label').textContent = jahreLabel(parseInt(slider.value, 10));
+      scheduleUpdate(500);
+    });
+  }
+  if (select) select.addEventListener('change', () => scheduleUpdate(0));
+  if (retryBtn) retryBtn.addEventListener('click', () => scheduleUpdate(0));
+
+  update();
+</script>
