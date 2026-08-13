@@ -14,8 +14,8 @@ import Icon from '../components/Icon.astro';
       <p class="lede">
         Gute Produktanalysen entstehen durch Recherchezeit. Jede Produktseite hat einen
         Zap-Button, mit dem du die Autor:in direkt per Lightning unterstützen kannst, und
-        einen Kommentarbereich über das dezentrale Nostr-Protokoll – beides ohne Umweg über
-        das Projekt.
+        einen Kommentarbereich über das dezentrale Nostr-Protokoll – offen für alle, auch
+        ganz ohne Wallet oder Nostr-Erweiterung, beides ohne Umweg über das Projekt.
       </p>
     </div>
   </section>
@@ -58,6 +58,21 @@ import Icon from '../components/Icon.astro';
       </div>
 
       <div class="card next-step">
+        <h3><Icon name="message" size={18} /> Kommentieren ganz ohne Wallet oder Extension — live</h3>
+        <p>
+          Du brauchst weder eine Nostr-Erweiterung noch eine Lightning-Wallet, um mitzureden:
+          Ohne Erweiterung erzeugt dein Browser automatisch eine anonyme, nur dort gespeicherte
+          Identität und signiert deinen Kommentar damit – er landet trotzdem als ganz normaler
+          Nostr-Kommentar im selben Thread.
+        </p>
+        <p class="status status--live">Zwei Wege, den eingebauten Spamschutz zu erfüllen:</p>
+        <ul>
+          <li><strong>Proof-of-Work (Standard):</strong> Dein Browser rechnet ein paar Sekunden (NIP-13, läuft in einem Web Worker, blockiert die Seite nicht) – kostet nichts außer kurz Rechenzeit, aber macht Massen-Spam teuer.</li>
+          <li><strong>Lightning-Abkürzung (optional):</strong> Mit einer WebLN-fähigen Wallet (z. B. Alby) kannst du die Wartezeit mit 21 Sats an die Autor:in überspringen – sofort veröffentlicht, plus ein kleiner Support für die Person, die den Beitrag geschrieben hat.</li>
+        </ul>
+      </div>
+
+      <div class="card next-step">
         <h3><Icon name="scale" size={18} /> Bekannte Grenzen dieser Umsetzung</h3>
         <p>
           Ehrlich gesagt: Ein dezentrales Kommentarsystem hat Kompromisse, die wir bewusst
@@ -67,6 +82,8 @@ import Icon from '../components/Icon.astro';
           <li>Es gibt keine Moderation durch uns – Kommentare landen direkt auf öffentlichen Relays. Dein Nostr-Client (Alby, Damus, Primal, …) bringt eigene Mute-/Block-Listen mit.</li>
           <li>Wir fragen standardmäßig eine feste Auswahl an Relays ab (relay.damus.io, nos.lol, relay.nostr.band, relay.primal.net) – Kommentare auf anderen Relays sehen wir hier nicht zwangsläufig.</li>
           <li>Der <code>lnurl</code>-Tag im Zap-Request enthält bei uns die reine Lightning-Adresse statt einer streng spec-konform bech32-kodierten LNURL – das genügt für Zahlung und unsere eigene Quittungs-Zählung, kann aber in seltenen Fällen abweichen, wie exotischere Nostr-Clients das anzeigen.</li>
+          <li>Die anonyme Browser-Identität (ohne Extension) ist bewusst schwächer abgesichert als eine echte Nostr-Extension: Der geheime Schlüssel liegt im <code>localStorage</code> deines Browsers, ohne Passwortschutz. Löschst du deine Browserdaten oder wechselst du das Gerät, verlierst du den Zugriff auf diese Identität – die bereits veröffentlichten Kommentare bleiben aber auf den Relays bestehen. Für alles, was dir wichtig ist, empfehlen wir eine echte Extension.</li>
+          <li>Proof-of-Work ist kein absoluter Schutz, sondern erhöht nur die Kosten für Massen-Spam (dasselbe Prinzip wie klassisches Hashcash) – mit sehr viel Rechenleistung ließe er sich umgehen.</li>
         </ul>
       </div>
 

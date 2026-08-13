@@ -15,12 +15,8 @@ export type Contributor = {
 
 export const contributors: Record<string, Contributor> = {
   Redaktion: {
-    // TODO: echte Lightning-Adresse eintragen, sobald vorhanden,
-    // z. B. "proofofworth@getalby.com" oder "team@walletofsatoshi.com".
-    // Solange dieses Feld leer/undefined ist, zeigt der ZapButton auf
-    // Produktseiten automatisch einen Hinweis statt eines kaputten Buttons.
-    lightningAddress: undefined,
-    nostr: undefined,
+    lightningAddress: "guiltyreplace182@cake.cash",
+    nostr: "npub1nwlha7h4k7f3sssugq5322kfhu7f3lcp2lzp87jtqa02p30ld6hsrmzr2z",
   },
 };
 

@@ -108,22 +108,39 @@ läuft – ohne eigenes Backend:
 - **Lesen**: Kommentare werden per `nostr-tools`/`SimplePool` von einem festen
   Relay-Set (relay.damus.io, nos.lol, relay.nostr.band, relay.primal.net) geladen
   (NIP-22, kind 1111, referenziert die Produkt-URL über `I`/`K`-Tags nach NIP-73).
-- **Schreiben**: Signierung über eine NIP-07-Browser-Extension (z. B. Alby, nos2x) –
-  ohne Extension ist der Bereich nur lesbar.
+- **Schreiben mit Extension**: Signierung über eine NIP-07-Browser-Extension (z. B.
+  Alby, nos2x) – portable, echte Nostr-Identität.
+- **Schreiben ohne Extension**: Der Browser erzeugt sich selbst ein Schlüsselpaar
+  (`getOrCreateLocalIdentity()`, im `localStorage` gespeichert) und signiert damit
+  lokal – landet als ganz normales NIP-22-Event im selben Thread. Als Spamschutz
+  davor:
+  - **Proof-of-Work (Standard, NIP-13)**: `minePow()` sucht in einem Web Worker
+    (`public/pow-worker.js`, reine Web-Crypto-API, keine Abhängigkeiten) per
+    Brute-Force eine Nonce, bis die Event-ID die Ziel-Schwierigkeit (Default: 14
+    führende Nullbits, `DEFAULT_POW_DIFFICULTY`) erreicht – ca. 1-3 Sekunden auf
+    üblicher Hardware. Läuft im Worker, damit die Seite währenddessen nicht einfriert.
+  - **Lightning-Abkürzung (optional)**: Mit einer WebLN-Wallet lässt sich die
+    Proof-of-Work-Wartezeit mit einer sofortigen 21-Sats-Zahlung an die
+    Autor:innen-Adresse überspringen (`publishLocalCommentViaPayment()`).
 - **Zaps auf Kommentare**: volle NIP-57-Zap-Requests (kind 9734, signiert) +
   öffentlich auf Relays sichtbare Zap-Quittungen (kind 9735), ausgezahlt an die im
   Nostr-Profil (`lud16`) der kommentierenden Person hinterlegte Lightning-Adresse.
-- Bekannte, bewusste Einschränkung: der `lnurl`-Tag im Zap-Request enthält die reine
+- Bekannte, bewusste Einschränkungen: der `lnurl`-Tag im Zap-Request enthält die reine
   Lightning-Adresse statt einer bech32-kodierten LNURL (spart eine zusätzliche
-  Abhängigkeit), und es gibt keine Moderation – siehe `/unterstuetzen` für Details.
+  Abhängigkeit); es gibt keine Moderation; die anonyme Browser-Identität ohne
+  Extension ist deutlich schwächer abgesichert (kein Passwortschutz, an ein Gerät/
+  einen Browser gebunden); Proof-of-Work erhöht nur die Kosten für Spam, ist aber
+  kein absoluter Schutz – siehe `/unterstuetzen` für die ausführliche Einordnung.
 
 Abhängigkeit: `nostr-tools` (in `package.json` ergänzt). **Nach dem Pull unbedingt
 `npm install` ausführen**, sonst schlägt der Build fehl.
 
 Dieses Feature wurde ohne lauffähige lokale `astro check`/`astro build`-Verifikation im
 Sandbox-Environment entwickelt (Plattform-Mismatch, siehe Git-Historie). Bitte vor dem
-Deploy lokal mit `npm install && npm run build` sowie einer NIP-07-fähigen Extension
-(z. B. Alby, die auch WebLN kann) testen und Konsolenfehler melden.
+Deploy lokal mit `npm install && npm run build` testen. Zum manuellen Testen am besten
+beide Kommentar-Wege durchklicken: einmal mit einer NIP-07-fähigen Extension (z. B.
+Alby, die auch WebLN kann), und einmal in einem Browser/Profil ganz ohne Extension
+(z. B. Inkognito-Fenster) für den Proof-of-Work-Weg samt Lightning-Abkürzung.
 
 ## Bitcoin-Kaufkraft-Vergleich
 
@@ -190,6 +207,9 @@ GitHub Pages oder Vercel funktioniert der Standard-Astro-Workflow ohne Anpassung
       Entwicklungs-Sandbox konnte dieses Feature nicht kompiliert/getestet werden
 - [ ] Nostr-Kommentare/-Zaps lokal mit einer NIP-07-Extension (z. B. Alby) durchklicken:
       Kommentar schreiben, Zap auf einen Kommentar, Teilen-Button
+- [ ] Kommentieren ganz ohne Extension testen (z. B. Inkognito-Fenster): Proof-of-Work
+      läuft und postet erfolgreich; falls eine Lightning-Adresse hinterlegt ist und eine
+      WebLN-Wallet bereitsteht, auch den "sofort mit Lightning posten"-Button testen
 
 ## Lizenz
 

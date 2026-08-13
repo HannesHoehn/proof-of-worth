@@ -10,16 +10,19 @@ import type { Locale } from '../i18n/ui';
 interface Props {
   lang: Locale;
   shareTitle: string;
+  /** Lightning-Adresse der Autor:in - ermöglicht die "sofort mit Lightning
+   *  posten"-Abkürzung für Kommentare ohne Nostr-Extension. Optional: ohne
+   *  Adresse gibt's nur den Proof-of-Work-Weg. */
+  lightningAddress?: string;
 }
 
-const { lang, shareTitle } = Astro.props;
+const { lang, shareTitle, lightningAddress } = Astro.props;
 const t = useTranslations(lang);
 
 const i18n = {
   placeholder: t('nostr.placeholder'),
   submit: t('nostr.submit'),
   submitting: t('nostr.submitting'),
-  needExtension: t('nostr.needExtension'),
   loading: t('nostr.loading'),
   empty: t('nostr.empty'),
   error: t('nostr.error'),
@@ -29,6 +32,12 @@ const i18n = {
   you: t('nostr.you'),
   shareSent: t('nostr.shareSent'),
   shareNeedExtension: t('nostr.shareNeedExtension'),
+  powStatus: t('nostr.powStatus'),
+  paySkipButton: t('nostr.paySkipButton'),
+  payPending: t('nostr.payPending'),
+  payFailed: t('nostr.payFailed'),
+  noWorkerSupport: t('nostr.noWorkerSupport'),
+  lightningAddress: lightningAddress ?? '',
   shareTitle,
   locale: lang === 'en' ? 'en-US' : 'de-DE',
 };
@@ -45,9 +54,18 @@ const i18n = {
 
   <form class="nostr-form">
     <textarea class="nostr-form__textarea" placeholder={i18n.placeholder} rows="3" required></textarea>
+    <p class="nostr-form__local-note" hidden>
+      {t('nostr.localIdentityNote')}
+      {t('nostr.needExtension')}
+      <a href="https://getalby.com" target="_blank" rel="noopener noreferrer">Alby</a>
+      {lang === 'de' ? 'oder' : 'or'}
+      <a href="https://github.com/fiatjaf/nos2x" target="_blank" rel="noopener noreferrer">nos2x</a>.
+    </p>
     <div class="nostr-form__row">
+      <button type="button" class="btn btn--ghost btn--sm nostr-form__pay-skip" hidden></button>
       <button type="submit" class="btn btn--primary btn--sm nostr-form__submit">{i18n.submit}</button>
     </div>
+    <p class="nostr-form__pow-status" hidden></p>
     <p class="nostr-form__status" role="status" aria-live="polite" hidden></p>
   </form>
 
@@ -96,10 +114,25 @@ const i18n = {
     font-family: var(--font-body);
     font-size: 0.95rem;
   }
+  .nostr-form__local-note {
+    font-size: 0.82rem;
+    color: var(--color-ink-soft);
+    background: var(--color-paper-dim);
+    border-radius: var(--radius);
+    padding: 0.6rem 0.8rem;
+    margin: 0.7rem 0 0;
+  }
+  .nostr-form__local-note a { color: var(--color-bronze-dark); }
   .nostr-form__row {
     display: flex;
     justify-content: flex-end;
+    gap: 0.6rem;
     margin-top: 0.7rem;
+  }
+  .nostr-form__pow-status {
+    margin: 0.6rem 0 0;
+    font-size: 0.85rem;
+    color: var(--color-ink-soft);
   }
   .nostr-form__status {
     margin: 0.6rem 0 0;
@@ -213,6 +246,8 @@ const i18n = {
   import {
     fetchComments,
     publishComment,
+    publishLocalComment,
+    publishLocalCommentViaPayment,
     fetchProfile,
     fetchZapTotal,
     buildZapInvoice,
@@ -223,6 +258,12 @@ const i18n = {
   } from '../lib/nostr-client';
   import QRCode from 'qrcode';
 
+  // Sats-Betrag für die "sofort mit Lightning posten"-Abkürzung, die den
+  // Proof-of-Work-Spamschutz ersetzt (siehe nostr-client.ts,
+  // publishLocalCommentViaPayment). Bewusst als fester Wert statt Prop, da
+  // es eine Seitenweite Policy ist, kein Per-Produkt-Setting.
+  const POST_PAYMENT_SATS = 21;
+
   // Astro-Komponenten-Scripts laufen als ES-Module - document.currentScript
   // ist dafür laut Spec immer null, deshalb direkt per Klasse suchen.
   const root = document.querySelector('.nostr-comments');
@@ -232,8 +273,14 @@ const i18n = {
     const textarea = root.querySelector('.nostr-form__textarea');
     const submitBtn = root.querySelector('.nostr-form__submit');
     const statusEl = root.querySelector('.nostr-form__status');
+    const localNote = root.querySelector('.nostr-form__local-note');
+    const paySkipBtn = root.querySelector('.nostr-form__pay-skip');
+    const powStatusEl = root.querySelector('.nostr-form__pow-status');
     const listEl = root.querySelector('.nostr-list');
     const shareBtn = root.querySelector('.nostr-share');
+
+    // Ohne Extension: Hinweis auf die lokale Identität + Proof-of-Work zeigen.
+    if (localNote) localNote.hidden = hasExtension();
 
     const url = currentPageUrl();
     // Eigene, gerade erst veröffentlichte Kommentare zwischenspeichern: Relays
@@ -420,35 +467,93 @@ const i18n = {
       }
     }
 
+    // Kommentieren ohne Extension: Proof-of-Work läuft automatisch los;
+    // parallel dazu (falls eine Lightning-Adresse hinterlegt und eine
+    // WebLN-Wallet vorhanden ist) kann per Klick sofort bezahlt werden, was
+    // die laufende Berechnung abbricht und stattdessen sofort veröffentlicht.
+    // Beide Wege laufen in ein gemeinsames Promise, das mit dem jeweils
+    // zuerst erfolgreichen Ergebnis auflöst.
+    function publishWithoutExtension(content) {
+      return new Promise((resolve, reject) => {
+        let settled = false;
+        const mining = publishLocalComment(url, content, undefined, (progress) => {
+          if (!powStatusEl) return;
+          powStatusEl.hidden = false;
+          const seconds = (progress.ms / 1000).toFixed(1);
+          powStatusEl.textContent = `${i18n.powStatus} (${progress.attempts.toLocaleString(i18n.locale)} · ${seconds}s)`;
+        });
+
+        mining.promise
+          .then((signed) => {
+            if (settled) return;
+            settled = true;
+            resolve(signed);
+          })
+          .catch((err) => {
+            if (settled) return;
+            settled = true;
+            reject(err);
+          });
+
+        if (paySkipBtn && i18n.lightningAddress && typeof window.webln !== 'undefined') {
+          paySkipBtn.hidden = false;
+          paySkipBtn.disabled = false;
+          paySkipBtn.textContent = `⚡ ${i18n.paySkipButton} (${POST_PAYMENT_SATS} sats)`;
+          paySkipBtn.onclick = async () => {
+            paySkipBtn.disabled = true;
+            setFormStatus(i18n.payPending);
+            try {
+              const signed = await publishLocalCommentViaPayment(
+                url,
+                content,
+                i18n.lightningAddress,
+                POST_PAYMENT_SATS,
+              );
+              if (settled) return;
+              settled = true;
+              mining.cancel();
+              resolve(signed);
+            } catch {
+              if (settled) return;
+              setFormStatus(i18n.payFailed, true);
+              paySkipBtn.hidden = true;
+              paySkipBtn.disabled = false;
+            }
+          };
+        }
+      });
+    }
+
     form?.addEventListener('submit', async (ev) => {
       ev.preventDefault();
       const content = textarea.value.trim();
       if (!content) return;
 
-      if (!hasExtension()) {
-        setFormStatus(
-          `${i18n.needExtension} Alby (getalby.com) oder nos2x.`,
-          true,
-        );
-        return;
-      }
-
       submitBtn.disabled = true;
-      setFormStatus(i18n.submitting);
+      if (paySkipBtn) paySkipBtn.hidden = true;
+      if (powStatusEl) powStatusEl.hidden = true;
+      setFormStatus(hasExtension() ? i18n.submitting : '');
+
       try {
-        const signed = await publishComment(url, content);
+        const signed = hasExtension()
+          ? await publishComment(url, content)
+          : await publishWithoutExtension(content);
+
         postedEvents.set(signed.id, signed);
         textarea.value = '';
         setFormStatus('');
+        if (powStatusEl) powStatusEl.hidden = true;
+        if (paySkipBtn) paySkipBtn.hidden = true;
         const existingEmpty = listEl.querySelector('.nostr-list__status');
         if (existingEmpty) listEl.innerHTML = '';
         const article = renderComment(signed);
         // Neuer Kommentar zuerst anzeigen (Liste ist chronologisch absteigend sortiert).
         if (listEl.firstChild !== article) listEl.insertBefore(article, listEl.firstChild);
-      } catch {
-        setFormStatus(i18n.publishError, true);
+      } catch (err) {
+        setFormStatus(err && err.message === 'no-worker-support' ? i18n.noWorkerSupport : i18n.publishError, true);
       } finally {
         submitBtn.disabled = false;
+        if (paySkipBtn) paySkipBtn.hidden = true;
       }
     });
 

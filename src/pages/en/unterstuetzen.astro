@@ -14,8 +14,8 @@ import Icon from '../../components/Icon.astro';
       <p class="lede">
         Good product analysis takes research time. Every product page has a Zap button
         that lets you support the author directly via Lightning, and a comment section
-        over the decentralized Nostr protocol – both without any detour through the
-        project.
+        over the decentralized Nostr protocol – open to everyone, even without a wallet
+        or a Nostr extension, both without any detour through the project.
       </p>
     </div>
   </section>
@@ -59,6 +59,21 @@ import Icon from '../../components/Icon.astro';
       </div>
 
       <div class="card next-step">
+        <h3><Icon name="message" size={18} /> Commenting without any wallet or extension — live</h3>
+        <p>
+          You don't need a Nostr extension or a Lightning wallet to join the conversation:
+          without an extension, your browser automatically creates an anonymous identity
+          stored only there, and signs your comment with it – it still lands as a perfectly
+          normal Nostr comment in the same thread.
+        </p>
+        <p class="status status--live">Two ways to clear the built-in spam protection:</p>
+        <ul>
+          <li><strong>Proof-of-work (default):</strong> your browser computes for a few seconds (NIP-13, runs in a Web Worker so the page doesn't freeze) – costs nothing but a bit of compute time, but makes mass spam expensive.</li>
+          <li><strong>Lightning shortcut (optional):</strong> with a WebLN-capable wallet (e.g. Alby) you can skip the wait by sending 21 sats to the author – published instantly, plus a small bit of support for whoever wrote the piece.</li>
+        </ul>
+      </div>
+
+      <div class="card next-step">
         <h3><Icon name="scale" size={18} /> Known limits of this implementation</h3>
         <p>
           To be clear: a decentralized comment system involves trade-offs we're
@@ -68,6 +83,8 @@ import Icon from '../../components/Icon.astro';
           <li>There's no moderation by us – comments land directly on public relays. Your Nostr client (Alby, Damus, Primal, …) brings its own mute/block lists.</li>
           <li>We query a fixed default set of relays (relay.damus.io, nos.lol, relay.nostr.band, relay.primal.net) – comments on other relays aren't necessarily visible here.</li>
           <li>The <code>lnurl</code> tag in the zap request carries the plain Lightning address rather than a strictly spec-compliant bech32-encoded LNURL – that's enough for payment and our own receipt counting, but may render slightly differently in more exotic Nostr clients.</li>
+          <li>The anonymous browser identity (no extension) is deliberately weaker than a real Nostr extension: the secret key sits in your browser's <code>localStorage</code>, with no password protection. Clear your browser data or switch devices, and you lose access to that identity – already-published comments stay on the relays regardless. For anything that matters to you, we recommend a real extension.</li>
+          <li>Proof-of-work is not an absolute defense, just a way to raise the cost of mass spam (the same principle as classic hashcash) – with enough computing power it could still be worked around.</li>
         </ul>
       </div>
 

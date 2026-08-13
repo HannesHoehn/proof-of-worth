@@ -70,7 +70,8 @@ export const ui = {
     'nostr.placeholder': 'Deine Meinung zu diesem Produkt …',
     'nostr.submit': 'Kommentieren',
     'nostr.submitting': 'Wird veröffentlicht …',
-    'nostr.needExtension': 'Zum Kommentieren brauchst du eine Nostr-Erweiterung wie',
+    'nostr.needExtension':
+      'Für eine portable, geräteübergreifende Identität kannst du stattdessen eine Nostr-Erweiterung installieren, z. B.',
     'nostr.loading': 'Kommentare werden geladen …',
     'nostr.empty': 'Noch keine Kommentare – sei die erste Stimme.',
     'nostr.error': 'Kommentare konnten nicht geladen werden.',
@@ -81,6 +82,14 @@ export const ui = {
     'nostr.shareButton': 'Auf Nostr teilen',
     'nostr.shareSent': 'Geteilt ✓',
     'nostr.shareNeedExtension': 'Zum Teilen brauchst du eine Nostr-Erweiterung.',
+    'nostr.localIdentityNote':
+      'Du kommentierst ohne Nostr-Erweiterung: Dieser Browser erzeugt dafür automatisch eine anonyme Identität, die nur hier gespeichert bleibt. Als Spamschutz wird dein Kommentar kurz per Proof-of-Work berechnet, bevor er veröffentlicht wird.',
+    'nostr.powStatus': 'Spam-Schutz wird berechnet (Proof-of-Work) …',
+    'nostr.paySkipButton': 'Stattdessen sofort mit Lightning posten',
+    'nostr.payPending': 'Zahlung wird angefragt …',
+    'nostr.payFailed': 'Zahlung fehlgeschlagen oder abgebrochen – weiter mit Proof-of-Work …',
+    'nostr.noWorkerSupport':
+      'Dein Browser unterstützt den Proof-of-Work-Spamschutz leider nicht. Bitte installiere eine Nostr-Erweiterung wie Alby oder nos2x zum Kommentieren.',
     'kaufkraft.eyebrow': 'Bitcoin-Rechner',
     'kaufkraft.title': 'Kaufkraft-Vergleich: Fiat-Preis vs. Bitcoin',
     'kaufkraft.intro':
@@ -169,7 +178,8 @@ export const ui = {
     'nostr.placeholder': 'Your take on this product …',
     'nostr.submit': 'Post comment',
     'nostr.submitting': 'Publishing …',
-    'nostr.needExtension': 'To comment you need a Nostr extension like',
+    'nostr.needExtension':
+      'For a portable identity that works across devices, you can install a Nostr extension instead, e.g.',
     'nostr.loading': 'Loading comments …',
     'nostr.empty': 'No comments yet – be the first voice.',
     'nostr.error': 'Comments could not be loaded.',
@@ -180,6 +190,14 @@ export const ui = {
     'nostr.shareButton': 'Share on Nostr',
     'nostr.shareSent': 'Shared ✓',
     'nostr.shareNeedExtension': 'You need a Nostr extension to share.',
+    'nostr.localIdentityNote':
+      "You're commenting without a Nostr extension: this browser automatically creates an anonymous identity that stays only here. As spam protection, your comment is briefly computed via proof-of-work before it's published.",
+    'nostr.powStatus': 'Computing spam protection (proof-of-work) …',
+    'nostr.paySkipButton': 'Post instantly with Lightning instead',
+    'nostr.payPending': 'Requesting payment …',
+    'nostr.payFailed': 'Payment failed or was cancelled – continuing with proof-of-work …',
+    'nostr.noWorkerSupport':
+      "Your browser doesn't support the proof-of-work spam protection. Please install a Nostr extension like Alby or nos2x to comment.",
     'kaufkraft.eyebrow': 'Bitcoin calculator',
     'kaufkraft.title': 'Purchasing power: fiat price vs. Bitcoin',
     'kaufkraft.intro':
